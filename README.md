@@ -236,7 +236,7 @@ REACT_APP_STAKING_ADDRESS=0x49568b041FD6F77dAD1611978043Ba2b18D84b92
 | Can reports be deleted? | Yes, easily | No — events are on-chain |
 | Who profits from data? | Platform | Contributors |
 | Can you verify a reporter? | No | Yes — via on-chain GCD reputation |
-| Language support | Varies | Multilingual AI (BS/SR/HR/EN/FR...) |
+| Language support | Varies | Multilingual AI (SR/HR/EN/FR/AR/RU/CN...) |
 
 ---
 
