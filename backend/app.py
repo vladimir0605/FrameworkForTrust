@@ -251,7 +251,7 @@ def slash_onchain(from_address: str, amount_gcd: float) -> bool:
         # Konverzija GCD → wei
         amount_wei = int(amount_gcd * (10 ** GCD_DECIMALS))
 
-        # Nonce za backend wallet
+        # Nonce for backend wallet
         nonce = w3.eth.get_transaction_count(checksum_backend)
 
         # Izgradi transakciju
