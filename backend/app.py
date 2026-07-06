@@ -54,18 +54,18 @@ from collections import deque
 
 import logging
 
-# ✅ Konfiguriši logging za cijelu aplikaciju
+# ✅ Configure logging for the entire application
 logging.basicConfig(
-    level=logging.INFO,  # u produkciji će biti overridano env varijablom
+    level=logging.INFO,  # in production env variable
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-# ✅ Jedan logger za cijeli fajl
+# ✅ One logger 
 logger = logging.getLogger("fft.app")
 
-# ✅ Postavi nivo iz env varijable
-# U .env: LOG_LEVEL=WARNING za produkciju, LOG_LEVEL=DEBUG za razvoj
+# ✅ Setting level with variable from env 
+# U .env: LOG_LEVEL=WARNING for production, LOG_LEVEL=DEBUG for development
 _log_level = os.getenv("LOG_LEVEL", "DEBUG").upper()
 logging.getLogger("fft").setLevel(
     getattr(logging, _log_level, logging.DEBUG)
@@ -87,14 +87,14 @@ bearer_scheme = HTTPBearer(auto_error=False)
 # === GCD / web3 configuration ===
 AMOY_RPC_URL = os.getenv(
     "AMOY_RPC_URL",
-    #"https://polygon-amoy.g.alchemy.com/v2/YOUR_KEY_HERE"  # prilagodi ili prebaci u .env
-    #"https://rpc-amoy.polygon.technology/v2/0x36be1c6a0360737ff8c64d2c66685ac1d25726b3"  # prilagodi ili prebaci u .env
-    "https://rpc-amoy.polygon.technology"  # prilagodi ili prebaci u .env
+    #"https://polygon-amoy.g.alchemy.com/v2/YOUR_KEY_HERE"  # adapt or transfer to .env
+    #"https://rpc-amoy.polygon.technology/v2/0x36be1c6a0360737ff8c64d2c66685ac1d25726b3"  # adapt or transfer to .env
+    "https://rpc-amoy.polygon.technology"  # adapt or transfer to .env
 )
 
 GCD_CONTRACT_ADDRESS = os.getenv(
     "GCD_CONTRACT_ADDRESS",
-    # GeoChainData adresu na Amoy postavi u .env
+    # GeoChainData Amoy address set in .env
 )
 
 # ERC20 ABI 
@@ -113,7 +113,7 @@ GCD_ERC20_ABI = [
         "stateMutability": "view",
         "type": "function",
     },
-    # ✅ reward() — poziva backend sa MINTER_ROLE
+    # ✅ reward() — call backend with MINTER_ROLE
     {
         "inputs": [
             {"name": "to",     "type": "address"},
@@ -124,7 +124,7 @@ GCD_ERC20_ABI = [
         "stateMutability": "nonpayable",
         "type": "function",
     },
-    # ✅ burn() — poziva backend sa BURN_ROLE (slash on-chain)
+    # ✅ burn() — call backend with BURN_ROLE (slash on-chain)
     {
         "inputs": [
             {"name": "from",   "type": "address"},
@@ -138,20 +138,20 @@ GCD_ERC20_ABI = [
 ]
 
 
-# ✅ Backend wallet — potpisuje on-chain transakcije
+# ✅ Backend wallet — signing on-chain transaction
 BACKEND_WALLET_ADDRESS = os.getenv("BACKEND_WALLET_ADDRESS", "").strip()
 BACKEND_WALLET_PRIVATE_KEY = os.getenv("BACKEND_WALLET_PRIVATE_KEY", "").strip()
 
 
 def reward_onchain(to_address: str, amount_gcd: float) -> bool:
     """
-    Poziva GeoChainData.reward(to, amount) on-chain.
-    Backend wallet mora imati MINTER_ROLE.
+    Call GeoChainData.reward(to, amount) on-chain.
+    Backend wallet has to has MINTER_ROLE.
 
-    amount_gcd je u GCD jedinicama (npr. 2.5 GCD).
-    Konverzija: amount_wei = int(amount_gcd * 10**GCD_DECIMALS)
+    amount_gcd in  GCD tokens (e.g. 2.5 GCD).
+    Conversion: amount_wei = int(amount_gcd * 10**GCD_DECIMALS)
 
-    Vraća True ako transakcija uspije, False inače.
+    Return True if transactionn success, else False.
     Namjerno ne bacа exception — greška se loguje ali ne ruši ingest flow.
     """
     if not w3 or not gcd_contract:
