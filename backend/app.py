@@ -54,18 +54,18 @@ from collections import deque
 
 import logging
 
-# ✅ Konfiguriši logging za cijelu aplikaciju
+# ✅ Configure logging for the entire application
 logging.basicConfig(
-    level=logging.INFO,  # u produkciji će biti overridano env varijablom
+    level=logging.INFO,  # in production env variable
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-# ✅ Jedan logger za cijeli fajl
+# ✅ One logger 
 logger = logging.getLogger("fft.app")
 
-# ✅ Postavi nivo iz env varijable
-# U .env: LOG_LEVEL=WARNING za produkciju, LOG_LEVEL=DEBUG za razvoj
+# ✅ Setting level with variable from env 
+# U .env: LOG_LEVEL=WARNING for production, LOG_LEVEL=DEBUG for development
 _log_level = os.getenv("LOG_LEVEL", "DEBUG").upper()
 logging.getLogger("fft").setLevel(
     getattr(logging, _log_level, logging.DEBUG)
@@ -87,14 +87,14 @@ bearer_scheme = HTTPBearer(auto_error=False)
 # === GCD / web3 configuration ===
 AMOY_RPC_URL = os.getenv(
     "AMOY_RPC_URL",
-    #"https://polygon-amoy.g.alchemy.com/v2/YOUR_KEY_HERE"  # prilagodi ili prebaci u .env
-    #"https://rpc-amoy.polygon.technology/v2/0x36be1c6a0360737ff8c64d2c66685ac1d25726b3"  # prilagodi ili prebaci u .env
-    "https://rpc-amoy.polygon.technology"  # prilagodi ili prebaci u .env
+    #"https://polygon-amoy.g.alchemy.com/v2/YOUR_KEY_HERE"  # adapt or transfer to .env
+    #"https://rpc-amoy.polygon.technology/v2/0x36be1c6a0360737ff8c64d2c66685ac1d25726b3"  # adapt or transfer to .env
+    "https://rpc-amoy.polygon.technology"  # adapt or transfer to .env
 )
 
 GCD_CONTRACT_ADDRESS = os.getenv(
     "GCD_CONTRACT_ADDRESS",
-    # GeoChainData adresu na Amoy postavi u .env
+    # GeoChainData Amoy address set in .env
 )
 
 # ERC20 ABI 
@@ -113,7 +113,7 @@ GCD_ERC20_ABI = [
         "stateMutability": "view",
         "type": "function",
     },
-    # ✅ reward() — poziva backend sa MINTER_ROLE
+    # ✅ reward() — call backend with MINTER_ROLE
     {
         "inputs": [
             {"name": "to",     "type": "address"},
@@ -124,7 +124,7 @@ GCD_ERC20_ABI = [
         "stateMutability": "nonpayable",
         "type": "function",
     },
-    # ✅ burn() — poziva backend sa BURN_ROLE (slash on-chain)
+    # ✅ burn() — call backend with BURN_ROLE (slash on-chain)
     {
         "inputs": [
             {"name": "from",   "type": "address"},
@@ -138,49 +138,49 @@ GCD_ERC20_ABI = [
 ]
 
 
-# ✅ Backend wallet — potpisuje on-chain transakcije
+# ✅ Backend wallet — signing on-chain transaction
 BACKEND_WALLET_ADDRESS = os.getenv("BACKEND_WALLET_ADDRESS", "").strip()
 BACKEND_WALLET_PRIVATE_KEY = os.getenv("BACKEND_WALLET_PRIVATE_KEY", "").strip()
 
 
 def reward_onchain(to_address: str, amount_gcd: float) -> bool:
     """
-    Poziva GeoChainData.reward(to, amount) on-chain.
-    Backend wallet mora imati MINTER_ROLE.
+    Call GeoChainData.reward(to, amount) on-chain.
+    Backend wallet has to has MINTER_ROLE.
 
-    amount_gcd je u GCD jedinicama (npr. 2.5 GCD).
-    Konverzija: amount_wei = int(amount_gcd * 10**GCD_DECIMALS)
+    amount_gcd in  GCD tokens (e.g. 2.5 GCD).
+    Conversion: amount_wei = int(amount_gcd * 10**GCD_DECIMALS)
 
-    Vraća True ako transakcija uspije, False inače.
-    Namjerno ne bacа exception — greška se loguje ali ne ruši ingest flow.
+    Return True if transactionn success, else False.
+    Intentionally does not raise an exception — the error is logged but the ingest flow is not interrupted.
     """
     if not w3 or not gcd_contract:
-        logger.warning("reward_onchain: web3 nije inicijalizovan, preskačem.")
+        logger.warning("reward_onchain: web3 is not initialized, skipping.")
         return False
 
     if not BACKEND_WALLET_ADDRESS or not BACKEND_WALLET_PRIVATE_KEY:
-        logger.warning("reward_onchain: BACKEND_WALLET nije podešen u .env, preskačem.")
+        logger.warning("reward_onchain: BACKEND_WALLET is not configured in .env, skipping.")
         return False
 
     if not to_address or not Web3.is_address(to_address):
-        logger.warning("reward_onchain: nevalidna adresa %s, preskačem.", to_address)
+        logger.warning("reward_onchain: invalid address %s, skipping.", to_address)
         return False
 
     if amount_gcd <= 0:
-        logger.warning("reward_onchain: amount_gcd <= 0 (%s), preskačem.", amount_gcd)
+        logger.warning("reward_onchain: amount_gcd <= 0 (%s), skipping.", amount_gcd)
         return False
 
     try:
         checksum_to      = Web3.to_checksum_address(to_address)
         checksum_backend = Web3.to_checksum_address(BACKEND_WALLET_ADDRESS)
 
-        # Konverzija GCD → wei
+        # Convert GCD → wei
         amount_wei = int(amount_gcd * (10 ** GCD_DECIMALS))
 
-        # Nonce za backend wallet
+        # Nonce for the backend wallet
         nonce = w3.eth.get_transaction_count(checksum_backend)
 
-        # Izgradi transakciju
+        # Build the transaction
         tx = gcd_contract.functions.reward(
             checksum_to,
             amount_wei,
@@ -191,11 +191,11 @@ def reward_onchain(to_address: str, amount_gcd: float) -> bool:
             "gasPrice": w3.eth.gas_price,
         })
 
-        # Potpiši i pošalji
+        # Sign and send
         signed = w3.eth.account.sign_transaction(tx, BACKEND_WALLET_PRIVATE_KEY)
         tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
 
-        # Čekaj potvrdu (max 60 sekundi)
+        # Wait for confirmation (max 60 seconds)
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
 
         if receipt.status == 1:
@@ -212,49 +212,49 @@ def reward_onchain(to_address: str, amount_gcd: float) -> bool:
             return False
 
     except Exception as exc:
-        logger.error("reward_onchain: greška za %s amount=%.4f: %s",
+        logger.error("reward_onchain: error for %s amount=%.4f: %s",
                      to_address, amount_gcd, exc)
         return False
 
 
 def slash_onchain(from_address: str, amount_gcd: float) -> bool:
     """
-    Poziva GeoChainData.burn(from, amount) on-chain.
-    Backend wallet mora imati BURN_ROLE.
+    Calls GeoChainData.burn(from, amount) on-chain.
+    The backend wallet must have BURN_ROLE.
 
-    amount_gcd je u GCD jedinicama (npr. 1.0 GCD).
-    Konverzija: amount_wei = int(amount_gcd * 10**GCD_DECIMALS)
+    amount_gcd is in GCD units (e.g. 1.0 GCD).
+    Conversion: amount_wei = int(amount_gcd * 10**GCD_DECIMALS)
 
-    Vraća True ako transakcija uspije, False inače.
-    Namjerno ne baca exception — greška se loguje ali ne ruši moderation flow.
+    Returns True if the transaction succeeds, otherwise False.
+    Intentionally does not raise an exception — the error is logged but the moderation flow is not interrupted.
     """
     if not w3 or not gcd_contract:
-        logger.warning("slash_onchain: web3 nije inicijalizovan, preskačem.")
+        logger.warning("slash_onchain: web3 is not initialized, skipping.")
         return False
 
     if not BACKEND_WALLET_ADDRESS or not BACKEND_WALLET_PRIVATE_KEY:
-        logger.warning("slash_onchain: BACKEND_WALLET nije podešen u .env, preskačem.")
+        logger.warning("slash_onchain: BACKEND_WALLET is not configured in .env, skipping.")
         return False
 
     if not from_address or not Web3.is_address(from_address):
-        logger.warning("slash_onchain: nevalidna adresa %s, preskačem.", from_address)
+        logger.warning("slash_onchain: invalid address %s, skipping.", from_address)
         return False
 
     if amount_gcd <= 0:
-        logger.warning("slash_onchain: amount_gcd <= 0 (%s), preskačem.", amount_gcd)
+        logger.warning("slash_onchain: amount_gcd <= 0 (%s), skipping.", amount_gcd)
         return False
 
     try:
         checksum_from    = Web3.to_checksum_address(from_address)
         checksum_backend = Web3.to_checksum_address(BACKEND_WALLET_ADDRESS)
 
-        # Konverzija GCD → wei
+        # Convert GCD → wei
         amount_wei = int(amount_gcd * (10 ** GCD_DECIMALS))
 
-        # Nonce za backend wallet
+        # Nonce for backend wallet
         nonce = w3.eth.get_transaction_count(checksum_backend)
 
-        # Izgradi transakciju
+        # Build the transaction
         tx = gcd_contract.functions.burn(
             checksum_from,
             amount_wei,
@@ -265,11 +265,11 @@ def slash_onchain(from_address: str, amount_gcd: float) -> bool:
             "gasPrice": w3.eth.gas_price,
         })
 
-        # Potpiši i pošalji
+        # Sign and send
         signed = w3.eth.account.sign_transaction(tx, BACKEND_WALLET_PRIVATE_KEY)
         tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
 
-        # Čekaj potvrdu (max 60 sekundi)
+        # Wait for confirmation (max 60 seconds)
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
 
         if receipt.status == 1:
@@ -286,21 +286,21 @@ def slash_onchain(from_address: str, amount_gcd: float) -> bool:
             return False
 
     except Exception as exc:
-        logger.error("slash_onchain: greška za %s amount=%.4f: %s",
+        logger.error("slash_onchain: error for %s amount=%.4f: %s",
                      from_address, amount_gcd, exc)
         return False
 
 
 
 
-# Jednostavno backend "skladište" u memoriji (maksimalno 5000 eventa u memoriji)
+# Simple in-memory backend store (maximum 5000 events in memory)
 #EVENT_STORE: list[dict] = []
 EVENT_STORE: deque = deque(maxlen=5000)
 
-STAKE_REF = 100.0  # referentni ulog, za test (npr. 100 GCD = max efekat)
-GCD_REP_REF = 1000.0  #npr. 1000 GCD => reputacija 1.0
+STAKE_REF = 100.0  # reference stake for testing (e.g. 100 GCD = max effect)
+GCD_REP_REF = 1000.0  # e.g. 1000 GCD => reputation 1.0
 
-# === DB konstante ===
+# === DB constants ===
 #DB_HOST = "localhost"
 #DB_PORT= 3306
 #DB_USER = "root"
@@ -309,43 +309,43 @@ GCD_REP_REF = 1000.0  #npr. 1000 GCD => reputacija 1.0
 
 DEBUG_TRUST = True
 
-# Kanonske konstante za role codes
+# Canonical constants for role codes
 ROLE_USER = "user"
 ROLE_QUADRANT_EDITOR = "quadrant_editor"
 ROLE_PARTNER = "partner"
 ROLE_ADMIN = "admin"
 ROLE_ORACLE = "oracle"
 
-# Koliko dogadjaja dnevno je dozvoljeno po wallet adresi
+# Number of events allowed per wallet address per day
 MAX_EVENTS_PER_WALLET_PER_DAY = 80
 
-# === GCD ekonomija: osnovni parametri (v0 parametri) ===
+# === GCD economy: basic parameters (v0 parameters) ===
 
-# Koliko GCD se maksimalno dodjeljuje za jedan "savršeni" event (trust_score ~ 1.0)
+# Maximum GCD awarded for one "perfect" event (trust_score ~ 1.0)
 GCD_EVENT_REWARD_BASE = 5.0  # 1 GCD po eventu na trust_score=1
 
-# Bonus komponenta na osnovu stake-a
-GCD_EVENT_STAKE_FACTOR = 0.03   # npr. 0.1 GCD bonusa po 1 staked GCD
-GCD_EVENT_STAKE_BONUS_CAP = 3.0  # max bonus po eventu
+# Bonus component based on stake
+GCD_EVENT_STAKE_FACTOR = 0.03   # e.g. 0.1 GCD bonus per 1 staked GCD
+GCD_EVENT_STAKE_BONUS_CAP = 3.0  # maximum bonus per event
 
 
-# Koliko strogo kažnjavamo spam/fake evente
-GCD_SLASH_PENALTY_MULTIPLIER = 1.5   # kazna ≈ 1.5x nagrade
-GCD_SLASH_STAKE_FRACTION = 0.5       # max 50% prijavljenog stake-a
-GCD_SLASH_MAX = 100.0                # hard cap po eventu (za v0)
+# How strictly spam/fake events are penalized
+GCD_SLASH_PENALTY_MULTIPLIER = 1.5   # penalty ≈ 1.5x reward
+GCD_SLASH_STAKE_FRACTION = 0.5       # max 50% of the submitted stake
+GCD_SLASH_MAX = 100.0                # hard cap per event (for v0)
 
-# Dnevni limit GCD nagrada po walletu (event_reward event_type)
+# Daily GCD reward limit per wallet (event_reward event_type)
 GCD_DAILY_EVENT_REWARD_CAP = 30.0
 
 # === GCD anti-farming (soft limiter) ===
-# Poslije ovoliko događaja u danu počinje "zamor" nagrada
-GCD_DAILY_EVENTS_SOFT_CAP = 10        # prvih 10 eventa pun gas
-# Koliko smanjujemo nagradu po događaju nakon soft cap-a (linearno)
-GCD_DAILY_DECAY_PER_EXTRA_EVENT = 0.1  # svaki extra event -10% nagrade
-# Donja granica multiplikatora (da ne padne ispod npr. 20% sirove nagrade)
+# After this many events in a day, reward "fatigue" starts
+GCD_DAILY_EVENTS_SOFT_CAP = 10        # first 10 events at full speed
+# How much the reward is reduced per event after the soft cap (linear)
+GCD_DAILY_DECAY_PER_EXTRA_EVENT = 0.1  # each extra event -10% reward
+# Lower bound for the multiplier (so it does not fall below e.g. 20% of the raw reward)
 GCD_DAILY_MIN_REWARD_FACTOR = 0.2
 
-#H3 rezolucija koju koristimo u geo_grid.index_location 
+# H3 resolution used in geo_grid.index_location 
 #DEFAULT_H3_RESOLUTION = 13
 
 #JWT user authorization
@@ -370,16 +370,16 @@ FFT_QIDX_STEP_MAX = int(os.getenv("FFT_QIDX_STEP_MAX", "50000"))
 TRANSFER_TOPIC0 = Web3.keccak(text="Transfer(address,address,uint256)").hex()
 
 def _require_admin_key(admin_key: Optional[str]) -> None:
-    # Ako nisi setovao key u env, preskoči (dev-friendly)
+    # If the key is not set in env, skip the check (dev-friendly)
     if not FFT_ADMIN_API_KEY:
         return
     if not admin_key or admin_key.strip() != FFT_ADMIN_API_KEY:
-        raise HTTPException(status_code=401, detail="Nevalidan X-FFT-Admin-Key.")
+        raise HTTPException(status_code=401, detail="Invalid X-FFT-Admin-Key.")
 
 
 
 
-# --- helper: izvuci H3 rezoluciju iz subcell_id ako je H3 ---
+# --- helper: extract H3 resolution from subcell_id if it is H3 ---
 _H3_SUBCELL_RE = re.compile(r"^H3R(\d+):")
 def _h3_res_from_subcell_id(subcell_id: Optional[str]) -> Optional[int]:
     if not subcell_id:
@@ -412,7 +412,7 @@ def init_web3():
 
         addr = (GCD_CONTRACT_ADDRESS or "").strip().strip('"').strip("'")
         if not Web3.is_address(addr):
-            #print(f"[GCD] Nevalidan GCD_CONTRACT_ADDRESS: {addr!r}")
+            #print(f"[GCD] Invalid GCD_CONTRACT_ADDRESS: {addr!r}")
             logger.warning("Invalid GCD_CONTRACT_ADDRESS: %r", addr)
             gcd_contract = None
             return
@@ -425,7 +425,7 @@ def init_web3():
         #print(f"[GCD] Web3 povezan, decimals={GCD_DECIMALS}, contract={addr}")
         logger.info("Web3 connected, decimals=%s, contract=%s", GCD_DECIMALS, addr)
     except Exception as e:
-        #print(f"[GCD] Greska pri inicijalizaciji web3/GCD: {e}")
+        #print(f"[GCD] Error initializing web3/GCD: {e}")
         logger.error("Web3/GCD init error: %s", e)
         w3 = None
         gcd_contract = None
@@ -434,31 +434,31 @@ def init_web3():
 # FastAPI + CORS
 # -------------------------
 
-# Application create
+# Create application
 app = FastAPI(
     title="Framework for Trust – Event API",
     description="test server",
     version="0.1.0",
 )
 
-# U produkciji samo glavni sajt + admil panel domen
+# In production, allow only the main site and the admin panel domain
 origins = [
     "http://localhost:3000",
-    "http://10.198.3.166:3000",  # prilagodi pred produkciju
+    "http://10.198.3.166:3000",  # adjust before production
 ]
 
 init_web3()
 
 def get_request_wallet(request: Request) -> Optional[str]:
     """
-    Ekstrakcija wallet adrese iz HTTP requesta.
+    Extract the wallet address from the HTTP request.
 
-    Prioritet:
-      1) HTTP header: X-Wallet-Address (ili varijante)
-      2) Query param: ?wallet=... ili ?wallet_address=...
+    Priority:
+      1) HTTP header: X-Wallet-Address (or variants)
+      2) Query param: ?wallet=... or ?wallet_address=...
     """
 
-    # 1) Header varijante (case-insensitive mapping, ali eksplicitno pokrivamo imena)
+    # 1) Header variants (case-insensitive mapping, but names are explicitly covered)
     for key in ["x-wallet-address", "X-Wallet-Address", "x-wallet", "X-Wallet"]:
         if key in request.headers:
             raw = request.headers.get(key)
@@ -467,7 +467,7 @@ def get_request_wallet(request: Request) -> Optional[str]:
                 if addr:
                     return addr
 
-    # 2) Query parametri
+    # 2) Query parameters
     qp = request.query_params
     raw = qp.get("wallet") or qp.get("wallet_address")
     if raw:
@@ -475,10 +475,10 @@ def get_request_wallet(request: Request) -> Optional[str]:
         if addr:
             return addr
 
-    # 3) Nema ničega
+    # 3) Nothing found
     return None
 
-# Double function
+# Duplicate function
 '''
 async def get_current_identity(
     request: Request,
@@ -489,16 +489,16 @@ async def get_current_identity(
     ),
 ) -> Dict[str, Any]:
     """
-    Vadi identitet korisnika iz X-Wallet-Address headera i fft_wallet cookie-ja,
-    pa učitava permisije iz fft_quadrant_permissions.
+    Extracts the user identity from the X-Wallet-Address header and fft_wallet cookie,
+    then loads permissions from fft_quadrant_permissions.
     """
-    # 1) Wallet iz headera ima prioritet
+    # 1) Wallet from header has priority
     wallet = wallet_header
     if not wallet:
-        wallet = get_request_wallet(request)  # tvoja postojeća helper funkcija
+        wallet = get_request_wallet(request)  # existing helper function
 
     if not wallet:
-        # Nema wallet → gost bez dozvola
+        # No wallet → guest without permissions
         return {
             "wallet_address": None,
             "is_system_admin": False,
@@ -507,8 +507,8 @@ async def get_current_identity(
             "raw_permissions": [],
         }
 
-    # --- Ovdje ostaje tvoja postojeća logika: SELECT iz fft_quadrant_permissions ---
-    perms = get_permissions_for_wallet(wallet)  # ili kako već zoveš funkciju iz db.py
+    # --- Your existing logic remains here: SELECT from fft_quadrant_permissions ---
+    perms = get_permissions_for_wallet(wallet)  # or whatever the function is called in db.py
 
     global_perms = [p["permission"] for p in perms if p["quadrant_id"] == "GLOBAL"]
     is_admin = "system_admin" in global_perms
@@ -531,18 +531,18 @@ async def get_current_identity(
 
 def ensure_can_edit_quadrant(identity: Dict[str, Any], quadrant_id: str) -> None:
     """
-    Dozvoljeno ako:
-      - korisnik ima system_admin (GLOBAL), ili
-      - korisnik ima quadrant_editor za dati quadrant_id.
-    U suprotnom -> 403.
+    Allowed if:
+      - the user has system_admin (GLOBAL), or
+      - the user has quadrant_editor for the given quadrant_id.
+    Otherwise -> 403.
     """
     if not identity:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Nije pronađen identitet korisnika.",
+            detail="User identity was not found.",
         )
 
-    # 1) System admin ima pravo na sve kvadrante
+    # 1) System admin has access to all quadrants
     if identity.get("is_system_admin"):
         return
 
@@ -553,10 +553,10 @@ def ensure_can_edit_quadrant(identity: Dict[str, Any], quadrant_id: str) -> None
     if "quadrant_editor" in perms_for_quad:
         return
 
-    # 3) Nema potrebnih prava
+    # 3) Required permissions are missing
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail=f"Nedovoljna ovlaštenja za uređivanje kvadranta {quadrant_id}.",
+        detail=f"Insufficient permissions to edit quadrant {quadrant_id}.",
     )
 
 
@@ -566,8 +566,8 @@ def has_quadrant_permission(
     permission: str,
 ) -> bool:
     """
-    Vraća True ako korisnik ima zadatu permisiju za dati kvadrant.
-    Oslanja se na identity["quadrant_permissions"] = { quadrant_id: [perm1, perm2, ...] }.
+    Returns True if the user has the given permission for the given quadrant.
+    Relies on identity["quadrant_permissions"] = { quadrant_id: [perm1, perm2, ...] }.
     """
     q_perms = identity.get("quadrant_permissions") or {}
     perms_for_quad = q_perms.get(quadrant_id) or []
@@ -576,53 +576,53 @@ def has_quadrant_permission(
 
 def ensure_can_moderate_event(identity: Dict[str, Any], quadrant_id: str) -> None:
     """
-    Dozvoljeno ako:
-      - korisnik ima system_admin (GLOBAL), ili
-      - korisnik ima quadrant_editor za dati quadrant_id, ili
-      - korisnik ima event_moderator za dati quadrant_id.
-    U suprotnom -> 403.
+    Allowed if:
+      - the user has system_admin (GLOBAL), or
+      - the user has quadrant_editor for the given quadrant_id, or
+      - the user has event_moderator for the given quadrant_id.
+    Otherwise -> 403.
     """
     if not identity:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Nije pronađen identitet korisnika.",
+            detail="User identity was not found.",
         )
 
-    # 1) System admin ima pravo na sve kvadrante
+    # 1) System admin has access to all quadrants
     if identity.get("is_system_admin"):
         return
 
-    # 2) Quadrant editor za taj kvadrat
+    # 2) Quadrant editor for that quadrant
     if has_quadrant_permission(identity, quadrant_id, "quadrant_editor"):
         return
 
-    # 3) Event moderator za taj kvadrat
+    # 3) Event moderator for that quadrant
     if has_quadrant_permission(identity, quadrant_id, "event_moderator"):
         return
 
-    # 4) Nema potrebnih prava
+    # 4) Required permissions are missing
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail=f"Nedovoljna ovlaštenja za moderaciju događaja u kvadrantu {quadrant_id}.",
+        detail=f"Insufficient permissions to moderate events in quadrant {quadrant_id}.",
     )
 
 
 def require_role(required_roles: List[str]):
     """
-    Helper koji vraća dependency, npr:
+    Helper that returns a dependency, e.g.:
 
       @app.get("/admin/...")
       def some_admin_endpoint(identity=Depends(require_role([ROLE_ADMIN]))):
           ...
 
-    Ako korisnik nema traženu ulogu, baca 403.
+    If the user does not have the required role, raises 403.
     """
     def dependency(identity = Depends(get_current_identity)):
         roles = identity.get("roles") or []
         if not any(r in roles for r in required_roles):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Nedovoljna prava za ovu operaciju.",
+                detail="Insufficient permissions for this operation.",
             )
         return identity
 
@@ -632,14 +632,14 @@ def require_role(required_roles: List[str]):
 
 def compute_onchain_reputation_from_gcd(source_wallet: Optional[str]) -> float:
     """
-    Računa reputaciju [0,1] na osnovu GCD balansa walleta.
-    Ako nema walleta ili nema veze sa blockchainom, vrati 0.0.
+    Calculates reputation [0,1] based on the wallet GCD balance.
+    If there is no wallet or no blockchain connection, return 0.0.
     """
     if not source_wallet:
         return 0.0
 
     if w3 is None or not w3.is_connected() or gcd_contract is None:
-        # nema konekcije ili contracta -> nema penalizacije servera, samo 0.0
+        # no connection or contract -> no server penalty, just 0.0
         return 0.0
 
     try:
@@ -647,11 +647,11 @@ def compute_onchain_reputation_from_gcd(source_wallet: Optional[str]) -> float:
         raw_balance = gcd_contract.functions.balanceOf(checksum).call()
         balance = raw_balance / (10 ** GCD_DECIMALS)
 
-        # 0 GCD -> 0, 1000 GCD -> 1.0, više se plafonira na 1.0
+        # 0 GCD -> 0, 1000 GCD -> 1.0, values above are capped at 1.0
         rep = min(balance / GCD_REP_REF, 1.0)
         return float(rep)
     except Exception as e:
-        #print(f"[GCD WARN] Neuspjeh pri računanju onchain_rep za {source_wallet}: {e}")
+        #print(f"[GCD WARN] Failed to calculate onchain_rep for {source_wallet}: {e}")
         logger.warning("onchain_rep failed for %s: %s", source_wallet, e)
         return 0.0
 
@@ -668,12 +668,12 @@ app.add_middleware(
 
 def reward_event_contributor(stored: Dict[str, Any]) -> None:
     """
-    v0.2 logika:
-      - bazna nagrada ∝ trust_score
-      - plus bonus na osnovu stake-a (sa cap-om)
+    v0.2 logic:
+      - base reward ∝ trust_score
+      - plus bonus based on stake (with cap)
       - soft anti-farming:
-          * poslije GCD_DAILY_EVENTS_SOFT_CAP događaja u danu uvodimo decay faktor
-          * hard cap GCD_DAILY_EVENT_REWARD_CAP po danu po walletu
+          * after GCD_DAILY_EVENTS_SOFT_CAP events in a day, introduce a decay factor
+          * hard cap GCD_DAILY_EVENT_REWARD_CAP per day per wallet
     """
     wallet = stored.get("source_wallet")
     if not wallet:
@@ -687,7 +687,7 @@ def reward_event_contributor(stored: Dict[str, Any]) -> None:
         ts = 0.0
 
     if ts <= 0.0:
-        # potpuno nepouzdan event -> nema nagrade
+        # completely unreliable event -> no reward
         return
 
     # 2) stake (za bonus)
@@ -702,7 +702,7 @@ def reward_event_contributor(stored: Dict[str, Any]) -> None:
     stake_bonus = min(stake * GCD_EVENT_STAKE_FACTOR, GCD_EVENT_STAKE_BONUS_CAP)
     raw_reward = base_part + stake_bonus
 
-    # 4) pročitamo koliko je već danas zarađeno
+    # 4) read how much has already been earned today
     try:
         events_today, total_today = get_gcd_event_rewards_today(wallet)
     except Exception as exc:
@@ -710,10 +710,10 @@ def reward_event_contributor(stored: Dict[str, Any]) -> None:
         logger.debug("get_gcd_event_rewards_today error: %s", exc)
         events_today, total_today = 0, 0.0
 
-    # 5) decay nakon određenog broja događaja u danu
+    # 5) decay after a certain number of events in a day
     over = max(0, events_today - GCD_DAILY_EVENTS_SOFT_CAP)
     if over > 0:
-        # linearni pad: 1.0, 0.9, 0.8, ... ali ne ispod GCD_DAILY_MIN_REWARD_FACTOR
+        # linear decrease: 1.0, 0.9, 0.8, ... but not below GCD_DAILY_MIN_REWARD_FACTOR
         decay_factor = max(
             GCD_DAILY_MIN_REWARD_FACTOR,
             1.0 - GCD_DAILY_DECAY_PER_EXTRA_EVENT * over,
@@ -723,7 +723,7 @@ def reward_event_contributor(stored: Dict[str, Any]) -> None:
 
     reward_before_cap = raw_reward * decay_factor
 
-    # 6) hard cap – koristimo već postojeći GCD_DAILY_EVENT_REWARD_CAP
+    # 6) hard cap – use the existing GCD_DAILY_EVENT_REWARD_CAP
     remaining_cap = max(0.0, GCD_DAILY_EVENT_REWARD_CAP - float(total_today))
     if remaining_cap <= 0.0:
         #print(
@@ -743,7 +743,7 @@ def reward_event_contributor(stored: Dict[str, Any]) -> None:
         logger.debug("reward<=0 (raw=%s, decay=%s, remaining_cap=%s)", raw_reward, decay_factor, remaining_cap)
         return
 
-    # 7) upis u gcd_ledger
+    # 7) write to gcd_ledger
     insert_gcd_ledger_entry(
         wallet_address=wallet,
         amount=reward,
@@ -774,13 +774,13 @@ def reward_event_contributor(stored: Dict[str, Any]) -> None:
     #)
     logger.info("Reward: wallet=%s +%.4f GCD (ts=%.3f)", wallet, reward, ts)
 
-    # ✅ On-chain nagrada — mintuje pravi GCD token na blockchainu
-    # Ako pukne, off-chain ledger je već upisan — ne rušimo flow
+    # ✅ On-chain reward — mints the real GCD token on the blockchain
+    # If it fails, the off-chain ledger has already been written — do not interrupt the flow
     reward_ok = reward_onchain(wallet, reward)
     if not reward_ok:
         logger.warning(
-            "reward_onchain NIJE uspio za %s +%.4f GCD — "
-            "off-chain ledger je upisan, on-chain nije.",
+            "reward_onchain failed for %s +%.4f GCD — "
+            "off-chain ledger was written, on-chain reward was not.",
             wallet, reward
         )
 
@@ -792,18 +792,18 @@ def apply_slash_for_event(
     moderator_wallet: Optional[str] = None,
 ) -> None:
     """
-    Primijeni GCD kaznu (slash) za dati event, ako je označen kao fake/spam.
+    Apply a GCD penalty (slash) for the given event if it is marked as fake/spam.
 
-    Logika (idempotentna):
-      1) Nađemo osnovne info o eventu (wallet, stake, trust_score...)
-      2) Iz gcd_ledger pročitamo:
+    Logic (idempotent):
+      1) Find basic event information (wallet, stake, trust_score...)
+      2) Read from gcd_ledger:
            - total_reward  (ukupno event_reward za taj event)
            - total_slash   (ukupno slash_penalty za taj event)
-      3) Izračunamo ciljnu kaznu (target_penalty) na osnovu:
+      3) Calculate the target penalty (target_penalty) based on:
            - GCD_SLASH_PENALTY_MULTIPLIER * total_reward
            - GCD_SLASH_STAKE_FRACTION * stake
            - GCD_SLASH_MAX
-      4) Primijenimo samo razliku (target_penalty - total_slash), ako je > 0
+      4) Apply only the difference (target_penalty - total_slash), if it is > 0
     """
 
     #print(
@@ -812,19 +812,19 @@ def apply_slash_for_event(
     #)
     logger.info("Slash start: event=%s status=%s moderator=%s", event_id, moderation_status, moderator_wallet)
 
-    # 1) Osnovne info o eventu
+    # 1) Basic event information
     basic = get_event_basic_info(event_id)
     #print(f"[GCD SLASH] basic info for {event_id}: {basic}")
     logger.debug("Slash basic info for %s: %s", event_id, basic)
 
     if not basic:
-        #print(f"[GCD SLASH] get_event_basic_info({event_id}) vratio prazno, preskačem.")
+        #print(f"[GCD SLASH] get_event_basic_info({event_id}) returned empty, skipping.")
         logger.warning("Slash: get_event_basic_info(%s) returned empty.", event_id)
         return
 
     wallet = basic.get("source_wallet")
     if not wallet:
-        #print(f"[GCD SLASH] Event {event_id} nema source_wallet, preskačem.")
+        #print(f"[GCD SLASH] Event {event_id} has no source_wallet, skipping.")
         logger.warning("Slash: event %s has no source_wallet.", event_id)
         return
 
@@ -843,25 +843,25 @@ def apply_slash_for_event(
     print(f"[GCD SLASH] wallet={wallet}, stake={stake}, trust_score={ts}")
     #logger.debug("Slash: wallet=%s stake=%s trust_score=%s", wallet, stake, ts)
 
-    # 2) reward + već postojeći slash iz gcd_ledger
+    # 2) reward + existing slash from gcd_ledger
     total_reward, total_slash = get_gcd_event_reward_and_slash(wallet, event_id)
     #print(f"[GCD SLASH] total_reward={total_reward}, total_slash={total_slash}")
     logger.debug("Slash: total_reward=%s total_slash=%s", total_reward, total_slash)
 
     if total_reward <= 0.0:
         print(
-            f"[GCD SLASH] Event {event_id} nema pozitivnih reward-a "
-            f"(total_reward={total_reward}), preskačem."
+            f"[GCD SLASH] Event {event_id} has no positive rewards "
+            f"(total_reward={total_reward}), skipping."
         )
         return
 
-    # 3) Izračun ciljne kazne
+    # 3) Calculate target penalty
     base_penalty = total_reward * GCD_SLASH_PENALTY_MULTIPLIER
 
     if stake > 0:
         stake_based_cap = stake * GCD_SLASH_STAKE_FRACTION
     else:
-        # ako nema stake-a, ograničavamo samo globalnim cap-om
+        # if there is no stake, limit only by the global cap
         stake_based_cap = GCD_SLASH_MAX
 
     target_penalty = min(base_penalty, stake_based_cap, GCD_SLASH_MAX)
@@ -873,20 +873,20 @@ def apply_slash_for_event(
 
     if target_penalty <= 0.0:
         #print(
-            #f"[GCD SLASH] Izračunata target_penalty={target_penalty} za event {event_id}, "
-            #f"preskačem."
+            #f"[GCD SLASH] Calculated target_penalty={target_penalty} za event {event_id}, "
+            #f"skipping."
         #)
         logger.debug("Slash: target_penalty=%s <= 0, skipping.", target_penalty)
         return
 
-    # 4) Koliko još možemo/treba da kaznimo (idempotentno)
+    # 4) How much more can/should be penalized (idempotent)
     remaining = target_penalty - total_slash
     print(f"[GCD SLASH] remaining={remaining}")
 
     if remaining <= 0.0:
         #print(
-            #f"[GCD SLASH] Za event {event_id} već je primijenjeno dovoljno slasha "
-            #f"(total_slash={total_slash} >= target_penalty={target_penalty}), preskačem."
+            #f"[GCD SLASH] Za event {event_id} already has sufficient slash applied "
+            #f"(total_slash={total_slash} >= target_penalty={target_penalty}), skipping."
         #)
         logger.info("Slash: already sufficient for event %s (slash=%s >= target=%s)", event_id, total_slash, target_penalty)
         return
@@ -916,13 +916,13 @@ def apply_slash_for_event(
         },
     )
 
-    # ✅ On-chain slash — spaljuje stvarne GCD tokene na blockchainu
-    # Ako pukne, off-chain ledger je već upisan — ne rušimo moderation flow
+    # ✅ On-chain slash — burns real GCD tokens on the blockchain
+    # If it fails, the off-chain ledger has already been written — do not interrupt the moderation flow
     slash_ok = slash_onchain(wallet, penalty_now)
     if not slash_ok:
         logger.warning(
-            "slash_onchain NIJE uspio za %s -%.4f GCD — "
-            "off-chain ledger je upisan, on-chain burn nije izvršen.",
+            "slash_onchain failed for %s -%.4f GCD — "
+            "off-chain ledger was written, on-chain burn was not executed.",
             wallet, penalty_now
         )
 
@@ -934,8 +934,8 @@ def apply_slash_for_event(
 
 def compute_event_hash(signed_payload: str) -> Optional[str]:
     """
-    Računa keccak256(signed_payload) i vraća ga kao 0x... hex string.
-    Ako nema payload-a ili dođe do greške, vraća None.
+    Calculates keccak256(signed_payload) and returns it as a 0x... hex string.
+    If there is no payload or an error occurs, returns None.
     """
     if not signed_payload:
         return None
@@ -961,7 +961,7 @@ QDRANT_HOST = "localhost"
 QDRANT_PORT = 6333
 QDRANT_COLLECTION = "fft_events"
 
-# neka vektor bude 4D, pa da se toga držimo
+# keep the vector 4D and stick to that
 QDRANT_VECTOR_SIZE = 4
 
 qdrant_client: Optional[QdrantClient] = None
@@ -980,16 +980,16 @@ if AMOY_RPC_URL and GCD_CONTRACT_ADDRESS:
             GCD_DECIMALS = GCD_CONTRACT.functions.decimals().call()
             print(f"[GCD] Web3 povezan, decimals={GCD_DECIMALS}")
         else:
-            print("[GCD] Upozorenje: web3 nije povezan (RPC URL ne radi?)")
+            print("[GCD] Warning: web3 is not connected (RPC URL not working?)")
     except Exception as e:
-        print(f"[GCD] Greška pri inicijalizaciji web3/GCD: {e}")
+        print(f"[GCD] Error initializing web3/GCD: {e}")
 else:
     print("[GCD] AMOY_RPC_URL ili GCD_CONTRACT_ADDRESS nisu postavljeni.")
 
 print("[DEBUG W3] connected =", w3.is_connected())
 '''
 
-#DEPRECATED - ne koristiti, pravu logiku drzi db.get_gcd_balance
+# DEPRECATED - do not use; the real logic is in db.get_gcd_balance
 #def get_gcd_balance(address: str) -> float:
 #    if GCD_CONTRACT is None or w3 is None:
 #        return 0.0
@@ -999,50 +999,50 @@ print("[DEBUG W3] connected =", w3.is_connected())
 #        human = raw / (10 ** GCD_DECIMALS)
 #        return float(human)
 #    except Exception as e:
-#        print(f"[GCD] Greška pri čitanju balansa za {address}: {e}")
+#        print(f"[GCD] Error reading balance for {address}: {e}")
 #        return 0.0
 
 
 #from web3 import Web3
 
-GCD_REP_REF = 1000.0  # ili vrijednost koju smo već koristili
+GCD_REP_REF = 1000.0  # or the value we already used
 
 def compute_source_reputation_from_gcd(address: str) -> float:
     """
-    Mapira GCD balans -> [0,1] reputacija.
-    Ako je adresa nevažeća ili nema web3/gcd_contract, vraća 0.0.
+    Maps GCD balance -> [0,1] reputation.
+    If the address is invalid or web3/gcd_contract is missing, returns 0.0.
     """
     if not address:
         return 0.0
 
-    # očisti razmake
+    # trim whitespace
     addr = address.strip()
 
-    # 1) osnovna provjera formata adrese
+    # 1) basic address format validation
     if not Web3.is_address(addr):
         print(
-            f"[GCD WARN] compute_source_reputation_from_gcd: '{addr}' nije validna adresa, rep=0.0"
+            f"[GCD WARN] compute_source_reputation_from_gcd: '{addr}' is not a valid address, rep=0.0"
         )
         return 0.0
 
-    # 2) web3 / kontrakt moraju postojati
+    # 2) web3 / contract must exist
     if w3 is None or gcd_contract is None:
         return 0.0
 
-    # 3) konverzija u checksum adresu prije poziva balanceOf
+    # 3) convert to checksum address before calling balanceOf
     try:
         checksum = Web3.to_checksum_address(addr)
     except Exception as exc:
         print(
-            f"[GCD WARN] compute_source_reputation_from_gcd: ne mogu napraviti checksum od '{addr}': {exc}"
+            f"[GCD WARN] compute_source_reputation_from_gcd: cannot create checksum from '{addr}': {exc}"
         )
         return 0.0
 
     try:
         raw = gcd_contract.functions.balanceOf(checksum).call()
-        #decimals = gcd_contract.functions.decimals().call() - to erase
+        # decimals = gcd_contract.functions.decimals().call() - remove
         bal = raw / (10 ** GCD_DECIMALS)
-        # npr. 0 GCD -> 0.0, 1000 GCD -> 1.0, više od 1000 cap na 1.0
+        # e.g. 0 GCD -> 0.0, 1000 GCD -> 1.0, above 1000 is capped at 1.0
         rep = float(bal / GCD_REP_REF)
         if rep < 0.0:
             rep = 0.0
@@ -1050,15 +1050,15 @@ def compute_source_reputation_from_gcd(address: str) -> float:
             rep = 1.0
         return rep
     except Exception as exc:
-        print(f"[GCD WARN] Neuspjeh pri čitanju balansa za {checksum}: {exc}")
+        print(f"[GCD WARN] Failed to read balance for {checksum}: {exc}")
         return 0.0
 
 
 def gcd_trust_factor(balance: float) -> float:
     """
-    Mapira GCD balans na multiplikativni faktor za trust_score.
-    0 GCD → ~0.6, veći balans → do 1.0.
-    Ovo je samo prva heuristika koju kasnije prilagođavamo.
+    Maps GCD balance to a multiplicative factor for trust_score.
+    0 GCD → ~0.6, higher balance → up to 1.0.
+    This is only the first heuristic, to be adjusted later.
     """
     if balance <= 0:
         return 0.6
@@ -1071,14 +1071,14 @@ def gcd_trust_factor(balance: float) -> float:
     return 1.0
 
 
-#Decode auth JWT
+# Decode auth JWT
 def decode_auth_jwt(token: str) -> Dict[str, Any]:
     if not FFT_AUTH_JWT_SECRET:
         raise HTTPException(status_code=500, detail="Server auth secret not configured.")
 
     try:
         payload = jwt.decode(token, FFT_AUTH_JWT_SECRET, algorithms=["HS256"])
-        # opcionalno provjeri issuer/domain
+        # optionally verify issuer/domain
         if payload.get("iss") != FFT_AUTH_DOMAIN:
             raise HTTPException(status_code=401, detail="Invalid token issuer")
         return payload
@@ -1093,10 +1093,10 @@ async def get_current_identity(
     creds: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
 ) -> Dict[str, Any]:
     """
-    NOVO: identitet isključivo iz Authorization: Bearer <jwt>
+    NEW: identity exclusively from Authorization: Bearer <jwt>
     """
     if not creds or not creds.credentials:
-        # nema tokena -> guest
+        # no token -> guest
         return {
             "wallet_address": None,
             "is_system_admin": False,
@@ -1135,7 +1135,7 @@ async def get_current_identity(
 
 
 # -------------------------
-# Pydantic modeli
+# Pydantic models
 # -------------------------
 
 class EventIn(BaseModel):
@@ -1152,7 +1152,7 @@ class EventIn(BaseModel):
 
     source_type: str = "human"
     #source_reputation: float = 0.5
-    # NEW: reporter confidence (signal iz UI)
+    # NEW: reporter confidence (signal from UI)
     reporter_confidence: float = Field(
         default=0.5,
         ge=0.0,
@@ -1160,7 +1160,7 @@ class EventIn(BaseModel):
         description="User-reported confidence [0..1]. Backend clamps + downweights."
     )
 
-    # Legacy (backward compatibility): stari frontovi još mogu slati source_reputation
+    # Legacy (backward compatibility): old frontends can still send source_reputation
     source_reputation: Optional[float] = Field(
         default=None,
         ge=0.0,
@@ -1172,34 +1172,34 @@ class EventIn(BaseModel):
     stake: float = 0.0
     sensor_values: Optional[List[float]] = None
 
-    # --- transport-specificna polja ---
+    # --- transport-specific fields ---
     vehicle_id: Optional[str] = None
     route_id: Optional[str] = None
     delay_minutes: Optional[float] = None
-    severity: Optional[int] = None      # npr. 1–5
+    severity: Optional[int] = None      # e.g. 1–5
 
-    # --- sloj za buducu autorizaciju ---
+    # --- layer for future authorization ---
     # source_wallet: Optional[List[float]] = None
-    source_wallet: Optional[str] = None #adresa izvora (GCD wallet)
+    source_wallet: Optional[str] = None # source address (GCD wallet)
 
-    # --- H3 / subcell sloj (PRIPREMA)
+    # --- H3 / subcell layer (PREPARATION)
     subcell_id: Optional[str] = Field(
         default=None,
-        description="Server-filled H3/S2 subcell id (npr. 'H3R13:<index>')."
+        description="Server-filled H3/S2 subcell id (e.g. 'H3R13:<index>')."
     )
     h3_resolution: Optional[int] = Field(
         default=None,
-        description="Server-filled H3 rezolucija (ako je scheme='h3')."
+        description="Server-filled H3 resolution (if scheme='h3')."
     )
 
-    # 🔐 ANTI-SPOOFING: potpis
+    # 🔐 ANTI-SPOOFING: signature
     signature: Optional[str] = Field(
         default=None,
-        description="EIP-191 personal_sign potpis canonical payload-a."
+        description="EIP-191 personal_sign signature of the canonical payload."
     )
     signed_payload: Optional[str] = Field(
         default=None,
-        description="Canonical payload string koji je bio potpisan (debug/log)."
+        description="Canonical payload string that was signed (debug/log)."
     )
 
 
@@ -1207,16 +1207,16 @@ class EventIn(BaseModel):
     location_accuracy_m: Optional[float] = Field(
         default=None,
         ge=0.0,
-        description="Procijenjena tačnost lokacije u metrima (iz browser/device)."
+        description="Estimated location accuracy in meters (from browser/device)."
     )
     location_source: Literal["gps", "wifi", "cell", "manual", "ip"] = Field(
         default="manual",
-        description="Izvor lokacije."
+        description="Location source."
     )
     device_timestamp_ms: Optional[int] = Field(
         default=None,
         ge=0,
-        description="Device timestamp (ms) kada je lokacija očitana."
+        description="Device timestamp (ms) when the location was read."
     )
 
 
@@ -1229,7 +1229,7 @@ class EventOut(BaseModel):
     message: str
     gcd_balance: Optional[float] = None
 
-    # 🔹 Novi, opcioni debug fieldovi za trust breakdown
+    # 🔹 New optional debug fields for trust breakdown
     ui_rep: Optional[float] = None
     onchain_rep: Optional[float] = None
     combined_rep: Optional[float] = None
@@ -1268,7 +1268,7 @@ MODERATION_STATUS_MAP = {
     "needs_review": "needs_review",
 }
 
-#HELPER FUNCTION (for sanitarization)
+# HELPER FUNCTION (for sanitization)
 ALLOWED_USER_FLAGS = {"flag:suspicious", "flag:fake"}
 PRIVILEGED_FLAGS = {"flag:verified"}
 
@@ -1308,7 +1308,7 @@ class EventModerationOut(BaseModel):
     moderated_at: Optional[datetime] = None
 
 
-#Pydantic imput model
+# Pydantic input model
 '''
 class QuadrantMetaUpdateIn(BaseModel):
     short_description: Optional[str] = None
@@ -1344,7 +1344,7 @@ class EventBrief(BaseModel):
     source_wallet: Optional[str] = None
     gcd_balance: Optional[float] = None
 
-    # isto što frontend očekuje u istoriji
+    # same as the frontend expects in history
     vehicle_id: Optional[str] = None
     route_id: Optional[str] = None
     delay_minutes: Optional[float] = None
@@ -1460,14 +1460,14 @@ class SubcellGeometryOut(BaseModel):
     # ✅ NEW (opciono): prava geometrija subcella
     polygon: Optional[List[List[float]]] = Field(
         default=None,
-        description="Lista tačaka [lat, lon] koje čine granicu subcella (zatvoren poligon ili open ring)."
+        description="List of [lat, lon] points that form the subcell boundary (closed polygon or open ring)."
     )
     polygon_source: Optional[str] = Field(
         default=None,
-        description="Izvor geometrije (npr. 'h3_boundary')."
+        description="Geometry source (npr. 'h3_boundary')."
     )
 
-# Pydantic modeli za autorizaciju
+# Pydantic models za autorizaciju
 class AuthNonceIn(BaseModel):
     wallet: str
 
@@ -1490,24 +1490,24 @@ class AuthLoginOut(BaseModel):
 
 
 # -------------------------
-# Logika za trust_score
+# trust_score logic
 # -------------------------
 
 def compute_trust_score(event: EventIn, neighbors: list[dict]) -> float:
     """
-    Osnovna logika:
-      - baza = source_reputation (0–1)
-      - tagovi: flag:verified / flag:suspicious / flag:fake
-      - susjedi u istom kvadrantu i vremenskom prozoru utiču na bonus
+    Basic logic:
+      - base = source_reputation (0–1)
+      - tags: flag:verified / flag:suspicious / flag:fake
+      - neighbors in the same quadrant and time window affect the bonus
     """
-    # 1) baza – reputacija izvora
+    # 1) base – source reputation
     base = float(np.clip(event.source_reputation, 0.0, 1.0))
 
     bonus = 0.0
     #tags = set(event.topic_tags or [])
     tags = set(sanitize_topic_tags(event.topic_tags or []))
 
-    # 2) lokalni flagovi iz frontenda
+    # 2) local flags from the frontend
     if "flag:fake" in tags:
         bonus -= 0.4
     elif "flag:suspicious" in tags:
@@ -1515,15 +1515,15 @@ def compute_trust_score(event: EventIn, neighbors: list[dict]) -> float:
     #elif "flag:verified" in tags: # verified only from moderation
         #bonus += 0.1
 
-    # 3) uticaj susjednih događaja
+    # 3) influence of neighboring events
     if neighbors:
         same_kind = [n for n in neighbors if n.get("kind") == event.kind]
         support_ratio = len(same_kind) / len(neighbors) if neighbors else 0.0
 
-        # ako su susjedi slični (isti kind), dižemo score
+        # if neighbors are similar (same kind), raise the score
         bonus += 0.3 * support_ratio
 
-        # ako među susjedima ima dosta flag:fake, spuštamo
+        # if many neighbors have flag:fake, lower it
         fake_neighbors = [
             n for n in neighbors
             if "flag:fake" in (n.get("topic_tags") or [])
@@ -1545,8 +1545,8 @@ def compute_trust_score(event: EventIn, neighbors: list[dict]) -> float:
 
 def _build_query_for_event(stored: Dict[str, Any]) -> str:
     """
-    Tekstualni query koji koristimo za Qdrant semantic_search.
-    Neka bude usklađen sa qdrant_store._build_event_text.
+    Text query used for Qdrant semantic_search.
+    Keep it aligned with qdrant_store._build_event_text.
     """
     parts = []
     kind = stored.get("kind")
@@ -1574,28 +1574,28 @@ def _build_query_for_event(stored: Dict[str, Any]) -> str:
 
 def compute_cluster_bonus_qdrant(stored: dict) -> float:
     """
-    Anti-cluster signal: ako postoji dosta semantički sličnih događaja,
-    naročito sa istog walleta, penalizuj score da bi se spriječio spam.
+    Anti-cluster signal: if there are many semantically similar events,
+    especially from the same wallet, penalize the score to prevent spam.
 
-    Novi prikaz:
-    - gledamo samo broj sličnih događaja (n)
-    - i koliko različitih wallet-a ih šalje (spam_ratio)
+    New approach:
+    - look only at the number of similar events (n)
+    - and how many distinct wallets send them (spam_ratio)
     """
 
     '''
     global qdrant_client
 
-    # Ako Qdrant nije spreman – bez bonusa/penala
+    # If Qdrant is not ready – no bonus/penalty
     if qdrant_client is None:
         print("[QDRANT CLUSTER] qdrant_client is None, bonus=0.0")
         return 0.0
     '''
 
-    # Ako Qdrant nije spreman – bez bonusa/penala
+    # If Qdrant is not ready – no bonus/penalty
     from qdrant_store import get_qdrant_client as _get_qdrant
     qdrant_client = _get_qdrant()
     if qdrant_client is None:
-        logger.warning("compute_cluster_bonus_qdrant: Qdrant nije dostupan, bonus=0.0")
+        logger.warning("compute_cluster_bonus_qdrant: Qdrant is unavailable, bonus=0.0")
         return 0.0
 
 
@@ -1605,21 +1605,21 @@ def compute_cluster_bonus_qdrant(stored: dict) -> float:
             top_k=20,
         )
     except Exception as exc:
-        print(f"[QDRANT CLUSTER] Greska pri semantic_search: {exc}")
+        print(f"[QDRANT CLUSTER] Error during semantic_search: {exc}")
         return 0.0
 
     if not similar_events:
-        print("[QDRANT CLUSTER] Nema sličnih događaja => bonus = 0.0")
+        print("[QDRANT CLUSTER] No similar events => bonus = 0.0")
         return 0.0
 
-    # odbacimo eventualni self-hit (iako ga obično nema jer novi event još nije u Qdrantu)
+    # discard any self-hit (usually absent because the new event is not yet in Qdrant)
     eid = stored.get("event_id")
     filtered = [
         e for e in similar_events
         if not e.get("event_id") or e.get("event_id") != eid
     ]
     if not filtered:
-        print("[QDRANT CLUSTER] Samo self-hit => bonus = 0.0")
+        print("[QDRANT CLUSTER] Only self-hit => bonus = 0.0")
         return 0.0
 
     n = len(filtered)
@@ -1633,17 +1633,17 @@ def compute_cluster_bonus_qdrant(stored: dict) -> float:
     avg_stake = float(np.mean([e.get("stake") or 0.0 for e in filtered]))
     avg_score = float(np.mean([e.get("score") or 0.0 for e in filtered]))
 
-    # Koliko spamuje isti wallet
+    # How much the same wallet is spamming
     spam_ratio = 1.0 if len(uniq_wallets) <= 1 else 1.0 / len(uniq_wallets)
 
-    # ---- NOVA HEURISTIKA ----
+    # ---- NEW HEURISTIC ----
     bonus = 0.0
 
     if spam_ratio >= 0.9 and n >= 3:
-        # Linearna kazna od 3. eventa pa naviše, max -0.25
+        # Linear penalty from the 3rd event onward, max -0.25
         bonus = -min(0.25, 0.05 * (n - 2))
     elif spam_ratio >= 0.6 and n >= 5:
-        # Ako ipak ima malo više walleta, ali i dalje dominira jedan
+        # If there are somewhat more wallets, but one still dominates
         bonus = -min(0.20, 0.04 * (n - 4))
 
     print(
@@ -1656,17 +1656,17 @@ def compute_cluster_bonus_qdrant(stored: dict) -> float:
 
 
 # -------------------------
-# Endpointi
+# Endpoints
 # -------------------------
 
-# Koliko da vjerujemo UI reputaciji vs. on-chain reputaciji - napomena: ALPHA_UI + ALPHA_CHAIN treba biti 1.0
-ALPHA_UI = 0.5     # 50% UI reputacija
-ALPHA_CHAIN = 0.5  # 50% on-chain GCD reputacija
+# How much to trust UI reputation vs. on-chain reputation - note: ALPHA_UI + ALPHA_CHAIN should be 1.0
+ALPHA_UI = 0.5     # 50% UI reputation
+ALPHA_CHAIN = 0.5  # 50% on-chain GCD reputation
 
 def compute_combined_reputation(ui_rep: float, onchain_rep: float) -> float:
     """
-    Kombinuje reputaciju iz UI (source_reputation iz forme)
-    i reputaciju izvedenu iz GCD balansa (onchain_rep).
+    Combines UI reputation (source_reputation from the form)
+    and reputation derived from the GCD balance (onchain_rep).
     """
     ui_rep = float(np.clip(ui_rep, 0.0, 1.0))
     onchain_rep = float(np.clip(onchain_rep, 0.0, 1.0))
@@ -1675,7 +1675,7 @@ def compute_combined_reputation(ui_rep: float, onchain_rep: float) -> float:
     return float(np.clip(combined, 0.0, 1.0))
 
 
-# Anti-spoofing - uskladjivanje potpisa sa frontendom
+# Anti-spoofing - align the signature with the frontend
 def normalize_address(addr: str) -> str:
     if not addr:
         return ""
@@ -1695,7 +1695,7 @@ def build_event_sign_payload(
     wallet: str,
 ) -> str:
     """
-    Mora da bude 1:1 identično stringu koji gradimo na frontendu.
+    Must be 1:1 identical to the string built on the frontend.
     """
     return (
         "FfT_EVENT_v1|"
@@ -1729,8 +1729,8 @@ FFT_PIN_MAX_SKEW_SEC = int(os.getenv("FFT_PIN_MAX_SKEW_SEC", "600"))  # 10 min d
 
 # JWT for user authentication
 def build_login_message(*, wallet: str, nonce: str) -> str:
-    # Poruka koju klijent potpisuje personal_sign
-    # Domain stavi da razlikuje tvoju aplikaciju od drugih.
+    # Message that the client signs with personal_sign
+    # Use a domain to distinguish your application from others.
     return (
         "FfT_LOGIN_v1|"
         f"domain={FFT_AUTH_DOMAIN}|"
@@ -1763,29 +1763,29 @@ class PinJsonIn(BaseModel):
     """
     Request:
       {
-        "json": {...},               # obavezno
-        "name": "quadrant_...",      # opcionalno, pinataMetadata.name
-        "keyvalues": {...},          # opcionalno, pinataMetadata.keyvalues (Pinata limit: string values)
-        "token_id": "123",           # opcionalno: koristi se za potpis / policy
-        "wallet": "0x...",           # opcionalno: ako postoji i REQUIRE_SIG=1 -> signature obavezan
-        "ts": 1730000000,            # opcionalno: unix seconds (preporuka kad se potpisuje)
-        "signature": "0x...",        # opcionalno: EIP-191 personal_sign
-        "cid_version": 1             # opcionalno (0 ili 1), default 1
+        "json": {...},               # required
+        "name": "quadrant_...",      # optional, pinataMetadata.name
+        "keyvalues": {...},          # optional, pinataMetadata.keyvalues (Pinata limit: string values)
+        "token_id": "123",           # optional: used for signature / policy
+        "wallet": "0x...",           # optional: if present and REQUIRE_SIG=1 -> signature is required
+        "ts": 1730000000,            # optional: unix seconds (recommended when signing)
+        "signature": "0x...",        # optional: EIP-191 personal_sign
+        "cid_version": 1             # optional (0 ili 1), default 1
       }
     """
     # pydantic v2: dopusti arbitrary JSON
     model_config = ConfigDict(extra="forbid")
 
-    json: Dict[str, Any] = Field(..., description="JSON sadržaj za pinJSONToIPFS (pinataContent).")
+    json: Dict[str, Any] = Field(..., description="JSON content for pinJSONToIPFS (pinataContent).")
     name: Optional[str] = Field(default=None, description="Pinata metadata name.")
-    keyvalues: Optional[Dict[str, Any]] = Field(default=None, description="Pinata metadata keyvalues (string-ish).")
+    keyvalues: Optional[Dict[str, Any]] = Field(default=None, description="Pinata metadata keyvalues (string-like).")
 
     token_id: Optional[str] = Field(default=None, description="Optional tokenId/quadrant token id.")
-    wallet: Optional[str] = Field(default=None, description="Wallet koji potpisuje pin request.")
-    ts: Optional[int] = Field(default=None, description="Unix timestamp (seconds) koji je potpisan.")
+    wallet: Optional[str] = Field(default=None, description="Wallet that signs the pin request.")
+    ts: Optional[int] = Field(default=None, description="Unix timestamp (seconds) that was signed.")
     signature: Optional[str] = Field(default=None, description="EIP-191 personal_sign signature.")
 
-    cid_version: int = Field(default=1, ge=0, le=1, description="Pinata cidVersion (0 ili 1).")
+    cid_version: int = Field(default=1, ge=0, le=1, description="Pinata cidVersion (0 or 1).")
 
 
 class PinJsonOut(BaseModel):
@@ -1797,7 +1797,7 @@ class PinJsonOut(BaseModel):
 
 def _canonical_json_bytes(obj: Any) -> bytes:
     """
-    Stabilna kanonikalizacija JSON-a:
+    Stable JSON canonicalization:
     - sort_keys=True
     - separators=(',', ':')
     - ensure_ascii=False
@@ -1818,8 +1818,8 @@ def build_pin_sign_payload(
     json_sha256: str,
 ) -> str:
     """
-    Stil poruke sličan signEventPayload (kanonski string sa separatorima).
-    Frontend treba da potpiše TAČNO ovaj string.
+    Message style similar to signEventPayload (canonical string with separators).
+    The frontend must sign EXACTLY this string.
 
     Format:
       FfT_PIN_v1|token_id=...|ts=...|sha256=...|wallet=0x...
@@ -1835,14 +1835,14 @@ def build_pin_sign_payload(
 
 def recover_address_from_personal_sign(message: str, signature: str) -> str:
     """
-    Isto kao tvoj recover_address_from_signature, samo naziv jasniji.
+    Same as recover_address_from_signature, but with a clearer name.
     """
     eth_msg = encode_defunct(text=message)
     recovered = Account.recover_message(eth_msg, signature=signature)
     return normalize_address(recovered)
 
 
-#Odbijanje starih timestampova
+# Reject old timestamps
 def _is_ts_fresh(ts: int) -> bool:
     now = int(time())
     return abs(now - int(ts)) <= FFT_PIN_MAX_SKEW_SEC
@@ -1854,43 +1854,43 @@ async def ipfs_pin_json(
     # admin_key: Optional[str] = Header(default=None, alias="X-FFT-Admin-Key"),
 ):
     """
-    Siguran pin JSON-a na IPFS preko Pinata JWT.
-    - JWT je samo na backendu (PINATA_JWT u env-u).
-    - Opciona provjera potpisa (EIP-191 personal_sign):
-        * ako body.wallet postoji i FFT_PIN_REQUIRE_SIG=1 -> signature obavezan.
-        * provjera: recover address == wallet
-        * provjera ts window (FFT_PIN_MAX_SKEW_SEC)
-        * provjera sha256(json) u poruci
+    Secure JSON pinning to IPFS via Pinata JWT.
+    - JWT is only on the backend (PINATA_JWT in env).
+    - Optional signature verification (EIP-191 personal_sign):
+        * if body.wallet exists and FFT_PIN_REQUIRE_SIG=1 -> signature is required.
+        * check: recovered address == wallet
+        * check ts window (FFT_PIN_MAX_SKEW_SEC)
+        * check sha256(json) in the message
 
-    U beti možeš staviti FFT_PIN_REQUIRE_SIG=0 da testiraš bez potpisa.
+    In beta, you can set FFT_PIN_REQUIRE_SIG=0 to test without a signature.
     """
 
     if not PINATA_JWT:
         raise HTTPException(
             status_code=500,
-            detail="PINATA_JWT is not set on serveru (env).",
+            detail="PINATA_JWT is not set on the server (env).",
         )
 
-    # Uklonjen Blok1, bio je mrtav kod
+    # Removed Block1; it was dead code
 
 
-    # Admin gate (dok si u beta fazi): traži X-FFT-Admin-Key
+    # Admin gate (while in beta): require X-FFT-Admin-Key
     #if FFT_ADMIN_API_KEY:
         #if not admin_key or admin_key.strip() != FFT_ADMIN_API_KEY:
-            #raise HTTPException(status_code=401, detail="Nevalidan X-FFT-Admin-Key.")
+            #raise HTTPException(status_code=401, detail="Invalid X-FFT-Admin-Key.")
 
 
-    # 1) Izračunaj sha256 JSON-a (da se potpis veže za sadržaj)
+    # 1) Calculate JSON sha256 (binds the signature to the content)
     json_sha = _sha256_hex_of_json(body.json)
 
 
 
 
-    # ✅ Blok 2 — jedina logika za require_sig:
-    # Ako postoje wallet + signature u requestu, uvijek verifikuj.
-    # Inače čitaj iz env varijable.
+    # ✅ Block 2 — the only require_sig logic:
+    # If wallet + signature are present in the request, always verify.
+    # Otherwise read from the env variable.
     if body.wallet and body.signature:
-        require_sig = True   # ✅ eksplicitno ako klijent šalje potpis
+        require_sig = True   # ✅ explicitly if the client sends a signature
     else:
         require_sig = (FFT_PIN_REQUIRE_SIG.strip() == "1")
 
@@ -1903,12 +1903,12 @@ async def ipfs_pin_json(
         if body.ts is None:
             raise HTTPException(
                 status_code=400,
-                detail="ts (unix seconds) is mandatory if  signature is using.",
+                detail="ts (unix seconds) is mandatory if a signature is used.",
             )
         if not _is_ts_fresh(int(body.ts)):
             raise HTTPException(
                 status_code=401,
-                detail="ts outdated (replay protection).",
+                detail="ts is outdated (replay protection).",
             )
 
         msg = build_pin_sign_payload(
@@ -1940,7 +1940,7 @@ async def ipfs_pin_json(
     if body.name:
         pinata_metadata["name"] = body.name
 
-    # Pinata keyvalues: vrijednosti moraju biti stringovi (ili bar stringifiable)
+    # Pinata keyvalues: values must be strings (or at least stringifiable)
     if body.keyvalues:
         kv = {}
         for k, v in body.keyvalues.items():
@@ -1968,10 +1968,10 @@ async def ipfs_pin_json(
             resp = await client.post(PINATA_PIN_JSON_URL, json=payload, headers=headers)
     except Exception as exc:
         print(f"[PINATA] HTTP error: {exc}")
-        raise HTTPException(status_code=502, detail="Ne mogu da se povežem na Pinata API.")
+        raise HTTPException(status_code=502, detail="Cannot connect to the Pinata API.")
 
     if resp.status_code >= 300:
-        # Pinata često vraća JSON error body – prikaži kratko
+        # Pinata often returns a JSON error body – display it briefly
         try:
             err = resp.json()
         except Exception:
@@ -1980,11 +1980,11 @@ async def ipfs_pin_json(
         raise HTTPException(status_code=502, detail=f"Pinata error: HTTP {resp.status_code}")
 
     data = resp.json()
-    # očekujemo IpfsHash u odgovoru
+    # expect IpfsHash in the response
     cid = data.get("IpfsHash")
     if not cid:
         print(f"[PINATA] unexpected response: {data}")
-        raise HTTPException(status_code=502, detail="Pinata nije vratio IpfsHash.")
+        raise HTTPException(status_code=502, detail="Pinata did not return IpfsHash.")
 
     ipfs_uri = f"ipfs://{cid}"
     pinata_url = f"https://gateway.pinata.cloud/ipfs/{cid}"
@@ -2000,7 +2000,7 @@ async def ipfs_pin_json(
 # ============================================================
 # IPFS Gateway proxy (GET /ipfs/cid/{cid})
 #   - backend fetchuje Pinata gateway
-#   - frontend više ne ide direktno na gateway.pinata.cloud
+#   - frontend no longer goes directly to gateway.pinata.cloud
 # ============================================================
 
 FFT_IPFS_GATEWAY = os.getenv("FFT_IPFS_GATEWAY", "https://gateway.pinata.cloud/ipfs/").strip()
@@ -2009,7 +2009,7 @@ FFT_IPFS_GATEWAY = FFT_IPFS_GATEWAY.rstrip("/") + "/"  # guarantee trailing slas
 def _sanitize_cid(cid: str) -> str:
     """
     Dozvoli samo CID (bez URL-a) da izbjegnemo SSRF.
-    Podržava ulaz poput:
+    Supports input such as:
       - bafk...
       - ipfs://bafk...
       - /ipfs/bafk...
@@ -2028,7 +2028,7 @@ def _sanitize_cid(cid: str) -> str:
     if not c or len(c) > 200:
         raise HTTPException(status_code=400, detail="Nevalidan CID.")
 
-    # osnovna validacija: CID je tipično base32/base58 => alfanumerički
+    # basic validation: CID is typically base32/base58 => alphanumeric
     if not all(ch.isalnum() for ch in c):
         raise HTTPException(status_code=400, detail="Nevalidan CID format.")
 
@@ -2038,7 +2038,7 @@ def _sanitize_cid(cid: str) -> str:
 @app.get("/ipfs/cid/{cid}")
 async def ipfs_get_cid(cid: str):
     """
-    Proxy za čitanje JSON metadata sa IPFS gateway-a.
+    Proxy for reading JSON metadata from an IPFS gateway.
     Frontend zove:
       GET http://<backend>/ipfs/cid/<CID>
     Backend radi fetch:
@@ -2057,7 +2057,7 @@ async def ipfs_get_cid(cid: str):
         # proslijedi status (npr. 403/404) – useful for  debug
         raise HTTPException(status_code=resp.status_code, detail=f"Gateway HTTP {resp.status_code}")
 
-    # pokušaj JSON; ako nije JSON, vrati raw (za debug)
+    # try JSON; if not JSON, return raw (for debug)
     try:
         data = resp.json()
     except Exception:
@@ -2081,30 +2081,30 @@ async def ipfs_get_cid(cid: str):
 @app.post("/events", response_model=EventOut)
 async def ingest_event(event: EventIn):
     """
-    Endpoint za prijem događaja.
+    Endpoint for receiving events.
 
     trust_score zavisi od:
     - UI reputacije (event.source_reputation)
     - on-chain GCD balansa (preko compute_combined_reputation)
     - stake (event.stake)
-    - lokalne istorije u kvadrantu (EVENT_STORE korelacija)
+    - local history in the quadrant (EVENT_STORE correlation)
     - Qdrant anti-klaster signala (compute_cluster_bonus_qdrant)
     """
 
-    # 0a) Provjera jedinstvenosti event_id – spriječi dupliranje i dvostruki reward
+    # 0a) Check event_id uniqueness – prevent duplicates and double rewards
     existing = await asyncio.to_thread(
         get_event_basic_info, event.event_id
     )
 
     if existing:
-        # ovdje može i 409 Conflict, ali 400 je isto OK za v0
+        # 409 Conflict could also be used here, but 400 is OK for v0
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Event sa event_id={event.event_id} već postoji."
+            detail=f"Event with event_id={event.event_id} already exists."
         )
 
 
-    # 🔐0b) Ako imamo source_wallet → zahtjevaj validan potpis (blok za verifikaciju potpisa)
+    # 🔐0b) If source_wallet is present → require a valid signature (signature verification block)
     
     if event.source_wallet:
         if not event.signature:
@@ -2127,10 +2127,10 @@ async def ingest_event(event: EventIn):
                 sign_payload, event.signature
             )
         except Exception as exc:
-            print(f"[SIG] Greška pri verifikaciji potpisa: {exc}")
+            print(f"[SIG] Error verifying signature: {exc}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Nevalidan potpis (signature).",
+                detail="Invalid signature.",
             )
 
         if normalize_address(recovered_addr) != normalize_address(event.source_wallet):
@@ -2143,29 +2143,29 @@ async def ingest_event(event: EventIn):
                 detail="Potpis ne odgovara navedenom source_wallet.",
             )
 
-        # Po želji: možemo ovdje i "canonicalizovati" wallet
+        # Optionally: canonicalize the wallet here
         source_wallet_verified = normalize_address(recovered_addr)
     else:
         source_wallet_verified = None
 
-    # ✅ Sanitizacija tagova: skini flag:verified + sve nedozvoljene flagove
+    # ✅ Tag sanitization: remove flag:verified + all disallowed flags
     clean_tags = sanitize_topic_tags(list(event.topic_tags or []))
 
 
     # 0c) Proof-of-event hash (keccak256 nad signed_payload) - staro
     #event_hash = compute_event_hash(getattr(event, "signed_payload", None))
-    # 0c) Proof-of-event hash (keccak256 nad signed_payload) — računamo jednom
+    # 0c) Proof-of-event hash (keccak256 over signed_payload) — calculate once
     event_hash = compute_event_hash(getattr(event, "signed_payload", "") or "")
 
-    # 0d) GEO indeksiranje (kvadrant + subcell + H3) na backendu
-    # Frontend šalje quadrant_id = tokenId (string), to nam ostaje kao kanonska vrijednost.
+    # 0d) GEO indexing (quadrant + subcell + H3) on the backend
+    # Frontend sends quadrant_id = tokenId (string); it remains the canonical value.
     quadrant_id_from_client = event.quadrant_id
 
-    # Podrazumijevane vrijednosti – ono što je došlo od klijenta
+    # Default values – what came from the client
     quadrant_id = quadrant_id_from_client
     subcell_id = event.subcell_id
     #h3_resolution = event.h3_resolution or DEFAULT_H3_RESOLUTION
-    h3_resolution = event.h3_resolution  # može biti None; kasnije ce se uskladiti
+    h3_resolution = event.h3_resolution  # may be None; will be aligned later
 
     geo_idx: Optional[GeoIndex] = None
     try:
@@ -2174,23 +2174,23 @@ async def ingest_event(event: EventIn):
             lon=event.lon,
             scheme="h3",
             h3_res=DEFAULT_H3_RESOLUTION,
-            # ako želiš kasnije:
+            # if needed later:
             # scheme="h3",
             # h3_res=DEFAULT_H3_RESOLUTION,
         )
     except Exception as exc:
-        print(f"[GEO_IDX] Greška pri index_location: {exc}")
+        print(f"[GEO_IDX] Error during index_location: {exc}")
         geo_idx = None
 
     if geo_idx is not None:
         backend_qid = geo_idx.quadrant_id
         subcell_id = geo_idx.subcell_id
-        # Uskladi h3_resolution sa subcell_id (da DB ne bude kontradiktoran)
+        # Align h3_resolution with subcell_id (so DB is not contradictory)
         h3_resolution = _h3_res_from_subcell_id(subcell_id)
 
 
-        # Log mismatch SAMO ako klijent šalje geo-format Q_<lat>_<lon>.
-        # Ako šalje tokenId, ovo NIJE mismatch nego drugi identifikator.
+        # Log mismatch ONLY if the client sends geo-format Q_<lat>_<lon>.
+        # If it sends tokenId, this is NOT a mismatch but another identifier.
         if quadrant_id_from_client and isinstance(quadrant_id_from_client, str):
             c = quadrant_id_from_client.strip()
             if c.startswith("Q_") and backend_qid and backend_qid != c:
@@ -2206,7 +2206,7 @@ async def ingest_event(event: EventIn):
             detail=(
                 f"Quadrant mismatch: client={quadrant_id_from_client}, "
                 f"backend={quadrant_id}. "
-                "Provjeri mapu ili geo indeksiranje."
+                "Check the map or geo indexing."
             ),
         )
         '''
@@ -2225,7 +2225,7 @@ async def ingest_event(event: EventIn):
         source_wallet = (event.source_wallet or "").strip() or None
 
 
-    # 0.1) Anti-abuse: limit događaja po walletu dnevno
+    # 0.1) Anti-abuse: daily event limit per wallet
     events_today_for_wallet = 0
     if source_wallet:
         events_today_for_wallet = await asyncio.to_thread(
@@ -2238,12 +2238,12 @@ async def ingest_event(event: EventIn):
         )
 
         if events_today_for_wallet >= MAX_EVENTS_PER_WALLET_PER_DAY:
-            # Hard limit – previše događaja danas sa ovog walleta
+            # Hard limit – too many events today from this wallet
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail=(
-                    "Previše događaja danas za ovaj wallet. "
-                    "Pokušaj sutra ponovo ili povećaj stake / reputaciju."
+                    "Too many events today for this wallet. "
+                    "Try again tomorrow or increase stake / reputation."
                 ),
             )
 
@@ -2265,7 +2265,7 @@ async def ingest_event(event: EventIn):
     # ✅ server-siderestrictione (weak signal, no manipulation with extremeces)
     reporter_conf = float(np.clip(raw_conf, 0.2, 0.8))
 
-    # UI signal (naziv zadržavam ui_rep da ne rušimo ostatak koda)
+    # UI signal (keep the name ui_rep to avoid breaking the rest of the code)
     ui_rep = reporter_conf
 
 
@@ -2280,7 +2280,7 @@ async def ingest_event(event: EventIn):
 
         except Exception as exc:
             print(
-                f"[GCD WARN] Neuspjeh pri računanju onchain_rep za {source_wallet}: {exc}"
+                f"[GCD WARN] Failed to calculate onchain_rep for {source_wallet}: {exc}"
             )
             onchain_rep = 0.0
 
@@ -2297,7 +2297,7 @@ async def ingest_event(event: EventIn):
     # 5) Bazni score: reputacija + stake
     base = 0.6 * combined_rep + 0.4 * stake_norm
 
-    # 6) Lokalna korelacija u istom kvadrantu (EVENT_STORE)
+    # 6) Local correlation in the same quadrant (EVENT_STORE)
     same_quad = [
         e for e in EVENT_STORE if e.get("quadrant_id") == quadrant_id
     ]
@@ -2324,10 +2324,10 @@ async def ingest_event(event: EventIn):
 
     # 7) privremeni dict za Qdrant klaster analizu (bez finalnog trust_score)
 
-    # (event_hash je vec izracunat gore jednom)
+    # (event_hash has already been calculated once above)
 
     stored_for_cluster = {
-        # Osnovni identitet
+        # Basic identity
         "event_id": event.event_id,
         "quadrant_id": quadrant_id,
         "lat": event.lat,
@@ -2345,7 +2345,7 @@ async def ingest_event(event: EventIn):
         #"topic_tags": list(event.topic_tags or []),
         "topic_tags": clean_tags,
 
-        # Transport / domen specifično
+        # Transport / domain-specific
         "vehicle_id": event.vehicle_id,
         "route_id": event.route_id,
         "delay_minutes": event.delay_minutes,
@@ -2362,7 +2362,7 @@ async def ingest_event(event: EventIn):
 
         # Lokalni i klaster bonus (privremeno)
         "bonus_local": bonus_local,
-        "cluster_bonus": 0.0,      # biće ažurirano poslije Qdrant analize
+        "cluster_bonus": 0.0,      # will be updated after Qdrant analysis
         "trust_score": 0.0,        # privremeno
 
         # Izvor i geo-subcell
@@ -2370,34 +2370,34 @@ async def ingest_event(event: EventIn):
         "subcell_id": subcell_id,
         "h3_resolution": h3_resolution,
 
-        # Odredjivanje lokacije
+        # Location determination
         "location_accuracy_m": getattr(event, "location_accuracy_m", None),
         "location_source": getattr(event, "location_source", None),
         "device_timestamp_ms": getattr(event, "device_timestamp_ms", None),
 
     }
 
-    # 8) Qdrant anti-klaster bonus (semantička sličnost)
+    # 8) Qdrant anti-cluster bonus (semantic similarity)
     cluster_bonus = 0.0
     try:
         cluster_bonus = await asyncio.to_thread(
             compute_cluster_bonus_qdrant, stored_for_cluster
         )
     except Exception as exc:
-        print(f"[QDRANT CLUSTER] Greska pri izračunu cluster_bonus: {exc}")
+        print(f"[QDRANT CLUSTER] Error calculating cluster_bonus: {exc}")
         cluster_bonus = 0.0
 
 
-    # 9) Konačni trust_score
+    # 9) Final trust_score
     trust_score = float(
         np.clip(base + bonus_local + cluster_bonus, 0.0, 1.0)
     )
 
-    # ažuriramo dict-ove sa finalnim vrijednostima
+    # update dictionaries with final values
     stored_for_cluster["cluster_bonus"] = cluster_bonus
     stored_for_cluster["trust_score"] = trust_score
 
-    # 10) Finalni stored (ono što čuvamo svuda)
+    # 10) Final stored object (what is stored everywhere)
     stored = dict(stored_for_cluster)
     stored["trust_score"] = trust_score
     stored["cluster_bonus"] = cluster_bonus
@@ -2437,11 +2437,11 @@ async def ingest_event(event: EventIn):
         return_exceptions=True,
     )
 
-   # ✅ Provjeri greške bez rušenja requesta
+   # ✅ Check errors without crashing the request
     labels = ["insert_event", "index_event", "reward_event_contributor"]
     for label, result in zip(labels, results):
         if isinstance(result, Exception):
-            print(f"[ASYNC] Greska u {label}: {result}")
+            print(f"[ASYNC] Error in {label}: {result}")
 
 
 
@@ -2450,7 +2450,7 @@ async def ingest_event(event: EventIn):
         event_id=event.event_id,
         stored_at=datetime.utcnow(),
         trust_score=trust_score,
-        message="Događaj je primljen i obrađen.",
+        message="Event has been received and processed.",
         ui_rep=ui_rep,
         onchain_rep=onchain_rep,
         combined_rep=combined_rep,
@@ -2469,7 +2469,7 @@ async def ingest_event(event: EventIn):
 @app.post("/events/search")
 def search_events(req: EventsSearchRequest):
     """
-    Paginated pretraga događaja iz MySQL `events` tabele.
+    Paginated search of events from the MySQL `events` table.
 
     Filtri (svi opcioni):
     - quadrant_id
@@ -2509,11 +2509,11 @@ def get_events_by_quadrant(
     limit: int = Query(default=50, ge=1, le=200),
 ):
     """
-    Vraća događaje za određeni kvadrant iz DB-a.
-    Čita iz MySQL, ne iz in-memory EVENT_STORE.
+    Returns events for a specific quadrant from the DB.
+    Reads from MySQL, not from in-memory EVENT_STORE.
     """
     try:
-        # ✅ Koristi postojeću list_events_paginated iz db.py
+        # ✅ Use the existing list_events_paginated from db.py
         page = list_events_paginated(
             quadrant_id=quadrant_id,
             limit=limit,
@@ -2527,13 +2527,13 @@ def get_events_by_quadrant(
             try:
                 results.append(EventBrief(**e))
             except Exception as exc:
-                print(f"[BY_QUADRANT] Greska pri mapiranju eventa: {exc}")
+                print(f"[BY_QUADRANT] Error mapping event: {exc}")
                 continue
 
         return results
 
     except Exception as exc:
-        print(f"[BY_QUADRANT] DB greska: {exc}")
+        print(f"[BY_QUADRANT] DB error: {exc}")
         raise HTTPException(
             status_code=500,
             detail="Error loading events for quadrant."
@@ -2542,12 +2542,12 @@ def get_events_by_quadrant(
 
 
 
-# Koliko dugo događaji utiču na boju kvadrata (npr. zadnja 3h)
+# How long events affect the square color (e.g. last 3h)
 HEAT_WINDOW_SECONDS = 3 * 3600
 
 @app.get("/events/{event_id}/proof", response_model=EventProofOut)
 def get_event_proof_endpoint(event_id: str):
-    # ✅ get_event_proof() sada uvijek vraća None ili dict
+    # ✅ get_event_proof() now always returns None or dict
     # nikad ne propagira MySQLError
     row = get_event_proof(event_id)
 
@@ -2557,7 +2557,7 @@ def get_event_proof_endpoint(event_id: str):
             detail=f"Event proof not found for event_id={event_id}."
         )
 
-    # ✅ Zaštita od None timestamp-a
+    # ✅ Protection against None timestamp
     try:
         ts = int(row["timestamp"])
     except (TypeError, ValueError):
@@ -2576,7 +2576,7 @@ def get_event_proof_endpoint(event_id: str):
 @app.get("/events/summary", response_model=List[QuadrantSummary])
 def get_events_summary():
     """
-    Summary po kvadrantu za heatmap.
+    Summary by quadrant for the heatmap.
     Filtrira evente unutar HEAT_WINDOW_SECONDS prozora.
     """
     try:
@@ -2613,7 +2613,7 @@ def get_events_summary():
 @app.get("/stats/by_quadrant")
 def stats_by_quadrant():
     """
-    Jednostavan endpoint za statistiku po kvadrantu iz MySQL-a.
+    Simple endpoint for quadrant statistics from MySQL.
     """
     return get_quadrant_stats()
 
@@ -2621,10 +2621,10 @@ def stats_by_quadrant():
 @app.post("/events/semantic_search", response_model=List[SemanticSearchHit])
 def events_semantic_search(body: SemanticSearchRequest):
     """
-    Semantička pretraga događaja preko Qdrant-a.
+    Semantic event search via Qdrant.
 
     - body.query: slobodan tekst (npr. "saobracajna nesreca na R1")
-    - body.quadrant_id: opciono filtriranje na jedan L0 kvadrat
+    - body.quadrant_id: optional filtering to one L0 quadrant
     - body.top_k: maksimalan broj rezultata
     """
     try:
@@ -2634,7 +2634,7 @@ def events_semantic_search(body: SemanticSearchRequest):
             quadrant_id=body.quadrant_id,
         )
     except Exception as exc:
-        print(f"[QDRANT] Greska pri semantic_search: {exc}")
+        print(f"[QDRANT] Error during semantic_search: {exc}")
         return []
 
     # mapiraj dict -> SemanticSearchHit
@@ -2663,13 +2663,13 @@ def on_startup():
     """
     Startup hook:
     - podigne MySQL connection pool
-    - "zagrije" Qdrant klijenta (kreira kolekciju ako treba)
-    Web3/GCD se već inicijalizuje pri importu modula.
+    - "warms up" the Qdrant client (creates the collection if needed)
+    Web3/GCD is already initialized when the module is imported.
     """
     # 1) DB pool
     init_db_pool()
 
-    # 2) Qdrant klijent – samo da provjerimo da radi
+    # 2) Qdrant client – just to verify it works
     try:
         client = get_qdrant_client()
         print("[QDRANT] Klijent spreman.")
@@ -2681,7 +2681,7 @@ def on_startup():
 @app.post("/events/similar")
 def find_similar_events(req: SimilarEventsRequest):
     """
-    Endpoint za React dugme "Prikaži slične događaje".
+    Endpoint for the React button "Show similar events".
 
     Ovdje svjesno koristimo "raw" semantic_search (qdrant_semantic_search)
     sa tekstualnim query-em, odvojenim od anti-klaster logike.
@@ -2715,7 +2715,7 @@ def find_similar_events(req: SimilarEventsRequest):
 
         return {"items": hits}
     except Exception as exc:
-        print(f"[QDRANT /events/similar] Greska: {exc}")
+        print(f"[QDRANT /events/similar] Error: {exc}")
         raise HTTPException(status_code=500, detail="Qdrant search error")
 
 
@@ -2731,7 +2731,7 @@ def health_check():
     # ---- DB provjera ----
     db_ok = False
     try:
-        from db import events_pool  # već postoji global u db.py
+        from db import events_pool  # global already exists in db.py
         if events_pool is not None:
             conn = events_pool.get_connection()
             conn.close()
@@ -2775,13 +2775,13 @@ def health_check():
     geo_schemes = get_available_schemes()
     if not geo_schemes["h3"]:
         logger.warning(
-            "H3 library nije dostupna. "
+            "H3 library is not available. "
             "Geo indeksing koristi BBOX fallback. "
             "Install: pip install h3"
         )
 
 
-    # status = "ok" samo ako je sve prošlo
+    # status = "ok" only if everything passed
     status = "ok" if (db_ok and qdrant_ok and web3_ok) else "degraded"
 
     return HealthOut(
@@ -2789,11 +2789,11 @@ def health_check():
         db_ok=db_ok,
         qdrant_ok=qdrant_ok,
         web3_ok=web3_ok,
-        version="0.1.0-beta",  # slobodno promijeni na nešto svoje
+        version="0.1.0-beta",  # feel free to change to your own value
     )
 
 
-#Endpoint za autorizaciju (cita identity preko Depends i dr.) - ZAKOMENTARISANO, POKRENUTI KADA BUDE POTREBNO
+# Authorization endpoint (reads identity via Depends, etc.) - COMMENTED OUT, ENABLE WHEN NEEDED
 '''
 @app.put("/quadrants/{quadrant_id}/short_description")
 def update_quadrant_short_description(
@@ -2802,11 +2802,11 @@ def update_quadrant_short_description(
     identity: Dict[str, Any] = Depends(get_current_identity),
 ):
     """
-    Ažuriranje kratkog opisa kvadranta.
+    Update the short quadrant description.
 
-    Pravila:
-      - ako ima ROLE_ADMIN → uvijek može
-      - ako ima ROLE_QUADRANT_EDITOR i permission='editor' za ovaj kvadrant → može
+    Rules:
+      - if the user has ROLE_ADMIN → always allowed
+      - if the user has ROLE_QUADRANT_EDITOR and permission='editor' for this quadrant → allowed
       - ostali → 403
     """
     wallet = identity.get("wallet_address")
@@ -2818,26 +2818,26 @@ def update_quadrant_short_description(
             detail="Nedostaje X-FFT-Wallet header.",
         )
 
-    # Admin uvijek može
+    # Admin is always allowed
     if ROLE_ADMIN in roles:
         allowed = True
     else:
-        # Inače provjera quadrant_permissions
+        # Otherwise check quadrant_permissions
         perms = get_quadrant_permissions_for_wallet(wallet, quadrant_id)
         allowed = ("editor" in perms) or (ROLE_QUADRANT_EDITOR in roles and "editor" in perms)
 
     if not allowed:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Nemaš prava da uređuješ ovaj kvadrant.",
+            detail="You do not have permission to edit this quadrant.",
         )
 
-    # Ako je prošlo sve gore, uradimo UPDATE na quadrants_l0
+    # If all checks above passed, perform UPDATE on quadrants_l0
     conn = get_connection()
     if conn is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="DB konekcija nije dostupna.",
+            detail="DB connection is not available.",
         )
 
     try:
@@ -2852,10 +2852,10 @@ def update_quadrant_short_description(
         )
         conn.commit()
     except MySQLError as exc: #<--- Name error
-        print(f"[DB] Greska pri update_quadrant_short_description: {exc}")
+        print(f"[DB] Error during update_quadrant_short_description: {exc}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="DB greška pri ažuriranju kvadranta.",
+            detail="DB error while updating the quadrant.",
         )
     finally:
         try:
@@ -2878,8 +2878,8 @@ def update_quadrant_short_description(
 @app.get("/whoami")
 def whoami(identity: Dict[str, Any] = Depends(get_current_identity)):
     """
-    Vraća trenutno prepoznati identitet, na osnovu wallet adrese u requestu.
-    Wallet se čita iz get_request_wallet() helpera (header / query, kako je već implementirano).
+    Returns the currently recognized identity based on the wallet address in the request.
+    Wallet is read from the get_request_wallet() helper (header / query, as already implemented).
     """
     return identity
 
@@ -2889,13 +2889,13 @@ def wallet_gcd_balance(
     identity: Dict[str, Any] = Depends(get_current_identity),
 ):
     """
-    Vrati off-chain GCD saldo za trenutni wallet (na osnovu X-Wallet-Address headera).
+    Return the off-chain GCD balance for the current wallet (based on the X-Wallet-Address header).
     """
     wallet = identity.get("wallet_address")
     if not wallet:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Wallet address nije pronađen u identitetu (X-Wallet-Address).",
+            detail="Wallet address was not found in the identity (X-Wallet-Address).",
         )
 
     balance = db_get_gcd_balance(wallet)
@@ -2908,14 +2908,14 @@ def wallet_gcd_rewards_today(
     identity: Dict[str, Any] = Depends(get_current_identity),
 ):
     """
-    Vrati koliko je GCD nagrada (event_reward) korisnik dobio danas
-    i za koliko događaja.
+    Return how many GCD rewards (event_reward) the user received today
+    and for how many events.
     """
     wallet = identity.get("wallet_address")
     if not wallet:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Wallet address nije pronađen u identitetu (X-Wallet-Address).",
+            detail="Wallet address was not found in the identity (X-Wallet-Address).",
         )
 
     count, total = db_get_gcd_event_rewards_today(wallet)
@@ -2950,15 +2950,15 @@ def patch_quadrant_meta_endpoint(
     if not ok:
         raise HTTPException(
             status_code=404,
-            detail="Kvadrant nije pronađen ili nije ažuriran.",
+            detail="Quadrant was not found or was not updated.",
         )
 
-    # 3) Ponovo učitaj svježe stanje i vrati kao QuadrantMetaOut
+    # 3) Reload the fresh state and return it as QuadrantMetaOut
     row = get_quadrant_meta(quadrant_id)
     if not row:
         raise HTTPException(
             status_code=404,
-            detail="Kvadrant nije pronađen nakon ažuriranja.",
+            detail="Quadrant was not found after the update.",
         )
 
     return QuadrantMetaOut(**row)
@@ -2969,7 +2969,7 @@ def patch_quadrant_meta_endpoint(
 def get_quadrant_meta_endpoint(quadrant_id: str):
     row = get_quadrant_meta(quadrant_id)
     if not row:
-        raise HTTPException(status_code=404, detail="Kvadrant nije pronađen.")
+        raise HTTPException(status_code=404, detail="Quadrant was not found.")
     return QuadrantMetaOut(**row)
 
 
@@ -2980,7 +2980,7 @@ def get_minted_quadrants(
 ):
     """
     PUBLIC endpoint za frontend mapu.
-    Vraća listu mintovanih token_id iz DB (quadrants_minted),
+    Returns a list of minted token_id values from DB (quadrants_minted),
     plus indexer state (last_scanned_block).
     """
     page = list_quadrants_minted(limit=limit, offset=offset)
@@ -3047,7 +3047,7 @@ def quadrants_indexer_run(
     """
     Admin endpoint koji skenira Transfer mint logove i puni quadrants_minted.
 
-    Radi u adaptive while petlji (step se smanjuje na RPC limit grešci).
+    Runs in an adaptive while loop (step is reduced on RPC limit errors).
     State se pamti u quadrants_indexer_state (id=1).
     """
     _require_admin_key(admin_key)
@@ -3071,7 +3071,7 @@ def quadrants_indexer_run(
     if start > latest:
         return {
             "ok": True,
-            "message": "Nema novih blokova za skeniranje.",
+            "message": "No new blocks to scan.",
             "latest_block": latest,
             "from_block": start,
             "to_block": latest,
@@ -3144,7 +3144,7 @@ def quadrants_indexer_run(
                         tx_hash=tx_hash,
                         log_index=log_index,
                         owner_wallet=owner_wallet,
-                        # resolution/cell_id/lat/lon možeš dodati kasnije (ili odmah ako želiš dekodirati)
+                        # resolution/cell_id/lat/lon can be added later (or immediately if you want to decode)
                     )
                     inserted += 1
                 except Exception as exc:
@@ -3154,7 +3154,7 @@ def quadrants_indexer_run(
             scanned_to = end
             set_quadrants_indexer_state(last_scanned_block=scanned_to, last_error=None)
 
-            # uspjeh => blago povećaj step do max
+            # success => gently increase step up to max
             if step < int(FFT_QIDX_STEP_MAX):
                 step = min(int(FFT_QIDX_STEP_MAX), int(step * 1.25))
 
@@ -3190,10 +3190,10 @@ def moderate_event(
             detail="Wallet address je obavezan za moderaciju.",
         )
 
-    # 1) Nađi kvadrant eventa
+    # 1) Find the event quadrant
     quad_id = get_event_quadrant(event_id)
     if not quad_id:
-        raise HTTPException(status_code=404, detail="Event nije pronađen.")
+        raise HTTPException(status_code=404, detail="Event was not found.")
 
     # 2) Permission check
     ensure_can_moderate_event(identity, quad_id)
@@ -3209,10 +3209,10 @@ def moderate_event(
     if rows == 0:
         raise HTTPException(
             status_code=404,
-            detail="Event nije pronađen ili nije ažuriran.",
+            detail="Event was not found or was not updated.",
         )
 
-    # 4) Ako je moderacija negativna (fake/spam) -> pokušaj da primijeniš GCD slash
+    # 4) If moderation is negative (fake/spam) -> try to apply GCD slash
     if body.moderation_status in ("fake", "spam"):
         print(
             f"[GCD SLASH] moderate_event: status={body.moderation_status}, "
@@ -3225,8 +3225,8 @@ def moderate_event(
                 moderator_wallet=wallet,
             )
         except Exception as exc:
-            # Ne rušimo API poziv zbog slasha – samo log
-            print(f"[GCD SLASH] Greska pri apply_slash_for_event({event_id}): {exc}")
+            # Do not fail the API call because of slash – only log
+            print(f"[GCD SLASH] Error during apply_slash_for_event({event_id}): {exc}")
 
     return EventModerationOut(
         event_id=event_id,
@@ -3239,12 +3239,12 @@ def moderate_event(
 '''
 @app.post("/events/{event_id}/moderate")
 def moderate_event(event_id: str, body: EventModerationIn):
-    # 1) Provjeri da event postoji
+    # 1) Check that the event exists
     existing = get_event_basic_info(event_id)
     if not existing:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Event sa event_id={event_id} ne postoji."
+            detail=f"Event with event_id={event_id} does not exist."
         )
 
     raw_status = (body.moderation_status or "").strip()
@@ -3267,7 +3267,7 @@ def moderate_event(event_id: str, body: EventModerationIn):
         print(f"[MODERATE] DB error for event_id={event_id}: {exc}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Greška pri ažuriranju moderacije."
+            detail="Error updating moderation."
         )
 
     return {
@@ -3286,7 +3286,7 @@ def geo_subcell_for_point(
     lon: float = Query(..., ge=-180.0, le=180.0),
 ):
     """
-    Vrati geometriju sub-ćelije (H3/S2-like) za zadatu tačku.
+    Return subcell geometry (H3/S2-like) for the given point.
     Koristimo iste step-ove kao u geo_grid.py (GRID_LAT_STEP_DEG / GRID_LON_STEP_DEG).
     """
         
@@ -3311,7 +3311,7 @@ def geo_subcell_for_point(
     polygon = None
     polygon_source = None
 
-    # ✅ Prava geometrija (za H3): uzmi boundary iz h3 ćelije
+    # ✅ Real geometry (for H3): get the boundary from the H3 cell
     # subcell_id format: "H3R13:<index>"
     """
     if isinstance(subcell_id, str) and subcell_id.startswith("H3R") and ":" in subcell_id:
@@ -3320,9 +3320,9 @@ def geo_subcell_for_point(
 
             _, h3_index = subcell_id.split(":", 1)
 
-            # h3.cell_to_boundary vraća listu koordinata granice ćelije.
-            # U novijem h3-py može biti (lat, lon) ili (lon, lat) zavisno od parametara / verzije.
-            # Zato ćemo heuristički prepoznati šta je šta.
+            # h3.cell_to_boundary returns a list of cell boundary coordinates.
+            # In newer h3-py it may be (lat, lon) or (lon, lat) depending on parameters / version.
+            # Therefore we heuristically detect what is what.
             #boundary = h3.cell_to_boundary(h3_index)
             boundary = h3.cell_to_boundary(h3_index)
 
@@ -3336,7 +3336,7 @@ def geo_subcell_for_point(
                     lat_i, lon_i = float(b), float(a)
                 ring.append([lat_i, lon_i])
 
-            # opcionalno: zatvori poligon (da zadnja tačka bude ista kao prva)
+            # optional: close the polygon (make the last point the same as the first)
             if ring and ring[0] != ring[-1]:
                 ring.append(ring[0])
 
@@ -3386,7 +3386,7 @@ def geo_subcell_for_point(
             polygon_source = None
 
 
-    # ✅ bbox iz poligona (ako postoji), inače fallback na centar
+    # ✅ bbox from polygon (if present), otherwise fallback to the center
     if polygon:
         lats = [p[0] for p in polygon]
         lons = [p[1] for p in polygon]
@@ -3425,7 +3425,7 @@ def auth_nonce(body: AuthNonceIn, request: Request):
     ip = request.client.host if request.client else None
     ua = request.headers.get("user-agent")
 
-    # ✅ Provjeri povratnu vrijednost
+    # ✅ Check return value
     ok = auth_create_nonce(
         wallet_address=wallet,
         nonce=nonce,
@@ -3435,7 +3435,7 @@ def auth_nonce(body: AuthNonceIn, request: Request):
     )
 
     if not ok:
-        # ✅ 503 Service Unavailable — DB nije dostupan
+        # ✅ 503 Service Unavailable — DB is not available
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Authentication service temporarily unavailable. Try again shortly.",
@@ -3485,11 +3485,11 @@ def auth_login(body: AuthLoginIn, request: Request):
 
     ip = request.client.host if request.client else None
 
-    # ✅ Provjeri povratnu vrijednost
+    # ✅ Check return value
     marked = auth_mark_nonce_used(row_id=int(row["id"]), ip=ip)
     if not marked:
-        # ✅ Nonce nije označen — potencijalni replay attack ili DB problem
-        # Sigurno odbij login da spriječimo replay
+        # ✅ Nonce was not marked — potential replay attack or DB problem
+        # Safely reject login to prevent replay
         logger.warning(
             "auth_login: auth_mark_nonce_used failed za wallet=%s row_id=%s",
             wallet, row["id"],
@@ -3505,4 +3505,3 @@ def auth_login(body: AuthLoginIn, request: Request):
         token=token,
         expires_in_sec=int(FFT_AUTH_JWT_TTL_SEC),
     )
-
