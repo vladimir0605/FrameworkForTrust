@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import MapComponent from "./Map";
 import GCDWallet from "./GCDWallet";
+import TestnetFaucet from "./TestnetFaucet";
 import "./App.css";
 import Globe from "./components/Globe";
 import LogoImg from "./assets/logo/Logo_1.png";
@@ -1050,6 +1051,9 @@ function DappSection({ t }) {
           </ul>
         </div>
       </div>
+
+      {/* Testnet-only faucet — intentionally separate from the GCD reputation economy */}
+      <TestnetFaucet apiBase={API_BASE} />
 
       {/* Quadrant Meta editor panel */}
       <QuadrantMetaPanel apiBase={API_BASE} />
