@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { signEventPayload } from "./web3Config";
 import { useWallet } from "./WalletContext";
 
-// OBAVEZNO: stavi pravi IP servera
+// REQUIRED: set the real server IP/URL
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8000";
 
 const EventForm = ({
@@ -22,27 +22,27 @@ const EventForm = ({
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState("");
 
-  // trust breakdown (last event)
+  // trust breakdown (last submitted event)
   const [trustDebug, setTrustDebug] = useState(null);
 
-  // for similar events (Qdrant)
+  // for similar events (Qdrant semantic search)
   const [lastEventForSimilarity, setLastEventForSimilarity] = useState(null);
   const [similarEvents, setSimilarEvents] = useState([]);
   const [similarLoading, setSimilarLoading] = useState(false);
   const [similarError, setSimilarError] = useState("");
 
-  // 👉 NEW: procjena reputacije izvora (0–1)
+  // 👉 NEW: source reputation estimate (0–1)
   const [reporterConfidence, setSourceReputation] = useState(0.5);
 
-  // 👉 NEW: subjektivna ocjena izvještaja (normal, suspicious, fake, verified)
+  // 👉 NEW: subjective report rating (normal, suspicious, fake, verified)
   const [reportFlag, setReportFlag] = useState("normal");
 
-  // univerzalna istorija događaja
+  // universal event history for the active quadrant
   const [events, setEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(false);
   const [eventsError, setEventsError] = useState("");
 
-  // transport – optional layer
+  // transport – optional layer (shown when checkbox is checked)
   const [isTransport, setIsTransport] = useState(false);
   const [vehicleId, setVehicleId] = useState("");
   const [routeId, setRouteId] = useState("");
@@ -50,11 +50,11 @@ const EventForm = ({
   const [severity, setSeverity] = useState("");
   const [stake, setStake] = useState("");
 
-  // 👉: detalji događaja (modal)
+  // 👉: event details (modal)
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  // popravka handleFindSimilar i handleShowProof  
+  // AbortController refs for handleFindSimilar and handleShowProof  
   const similarControllerRef = useRef(null);
   const proofControllerRef = useRef(null);
 
@@ -90,7 +90,7 @@ const EventForm = ({
   const TIMELINE_LIMIT = 20;
 
 
-  // 👉 NEW: filtes for History events
+  // 👉 NEW: filters for event history
   const [filterKind, setFilterKind] = useState("");
   const [filterTag, setFilterTag] = useState("");
 
@@ -109,7 +109,7 @@ const EventForm = ({
   const locateMe = async () => {
     setLocError("");
     if (!canGeo) {
-      setLocError("Geolocation not available in this browser-u.");
+      setLocError("Geolocation not available in this browser.");
       return;
     }
 
@@ -137,7 +137,7 @@ const EventForm = ({
     );
   };
 
-  // helper: generate event_id
+  // helper: generate a unique event_id
   const generateEventId = () => {
     try {
       if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -149,7 +149,7 @@ const EventForm = ({
     return `ev_${Date.now()}_${Math.random().toString(16).slice(2)}`;
   };
 
-  // helper: parsing  tags from input "a,b,c"
+  // helper: parse tags from comma-separated input "a,b,c"
   const parseTopicTags = (raw) => {
     if (!raw || typeof raw !== "string") return [];
     return raw
@@ -161,7 +161,7 @@ const EventForm = ({
 
 
 
-  // 🔹 1)event pull for active quadrant
+  // 🔹 1) fetch events for the active quadrant
 useEffect(() => {
   if (!activeQuadrant || !activeQuadrant.tokenId) {
     setEvents([]);
@@ -172,8 +172,8 @@ useEffect(() => {
     return;
   }
 
-  // ✅ AbortController: ako se kvadrant promijeni ili komponenta unmountuje,
-  // fetch se prekida i setState se ne poziva na mrtvoj komponenti
+  // ✅ AbortController: if the quadrant changes or the component unmounts,
+  // the fetch is cancelled and setState is not called on a dead component
   const controller = new AbortController();
 
   const fetchEvents = async () => {
@@ -184,7 +184,7 @@ useEffect(() => {
     try {
       const res = await fetch(
         `${API_BASE}/events/by_quadrant?quadrant_id=${encodeURIComponent(quadrantId)}`,
-        { signal: controller.signal }  // ✅ signal vezan za controller
+        { signal: controller.signal }  // ✅ signal tied to controller
       );
       if (!res.ok) {
         const text = await res.text();
@@ -196,29 +196,29 @@ useEffect(() => {
         setEvents(Array.isArray(data) ? data : []);
       }
     } catch (err) {
-      // ✅ AbortError nije stvarna greška — tiho ignorišemo
+      // ✅ AbortError is not a real error — silently ignore
       if (err.name === "AbortError") return;
       console.error("GET /events/by_quadrant exception:", err);
       setEventsError("Can't connect to the event history API.");
       setEvents([]);
     } finally {
-      // ✅ finally se i dalje poziva, ali setEventsLoading(false)
-      // je sigurno jer smo provjeru AbortError-a uradili u catch-u
+      // ✅ finally still runs, but setEventsLoading(false)
+      // is safe because we already handled AbortError in catch
       setEventsLoading(false);
     }
   };
 
   fetchEvents();
 
-  // ✅ cleanup funkcija: poziva se kad se activeQuadrant promijeni
-  // ili kad se komponenta unmountuje — automatski prekida fetch
+  // ✅ cleanup: called when activeQuadrant changes
+  // or when the component unmounts — automatically cancels the fetch
   return () => controller.abort();
 
 }, [activeQuadrant]);
 
 
 
-  // 🔹 2)transportevent agregationa on  frontend only)
+  // 🔹 2) transport event aggregation (frontend only)
   let transportSummary = null;
   if (events && events.length > 0) {
     const transportEvents = events.filter(
@@ -258,7 +258,7 @@ useEffect(() => {
     }
   }
 
-  // 🔍 Filtriranje događaja po tipu i tagu
+  // 🔍 Filter events by type and tag
   const filteredEvents = (events || []).filter((ev) => {
     // filter on kind
     if (filterKind) {
@@ -279,7 +279,7 @@ useEffect(() => {
     return true;
   });
 
-  // small helper for flag icons
+  // small helper: returns icon for flag tags
   const getFlagIcon = (topicTags) => {
     const t = Array.isArray(topicTags) ? topicTags : [];
     if (t.includes("flag:fake")) return "🚫";
@@ -297,11 +297,11 @@ const handleFindSimilar = async () => {
     return;
   }
 
-  // ✅ Ako postoji prethodni fetch koji još traje — prekini ga
+  // ✅ Cancel previous fetch if still in progress
   if (similarControllerRef.current) {
     similarControllerRef.current.abort();
   }
-  // ✅ Kreiraj novi controller za ovaj klik
+  // ✅ Create a new controller for this click
   const controller = new AbortController();
   similarControllerRef.current = controller;
 
@@ -339,7 +339,7 @@ const handleFindSimilar = async () => {
     setSimilarEvents(items);
 
   } catch (err) {
-    if (err.name === "AbortError") return; // ✅ tiho izlazi
+    if (err.name === "AbortError") return; // ✅ silent exit on abort
     console.error("events/similar exception:", err);
     setSimilarError("⚠️ Can't get similar events.");
     setSimilarEvents([]);
@@ -351,7 +351,7 @@ const handleFindSimilar = async () => {
 
 
 const handleShowProof = async (eventId) => {
-  // ✅ Prekini prethodni proof fetch ako postoji
+  // ✅ Cancel previous proof fetch if present
   if (proofControllerRef.current) {
     proofControllerRef.current.abort();
   }
@@ -379,7 +379,7 @@ const handleShowProof = async (eventId) => {
     setProofData(data);
 
   } catch (err) {
-    if (err.name === "AbortError") return; // ✅ tiho izlazi
+    if (err.name === "AbortError") return; // ✅ silent exit on abort
     console.error("GET /events/{id}/proof exception:", err);
     setProofError("⚠️ Can't connect to proof API.");
   } finally {
@@ -438,14 +438,14 @@ const handleShowProof = async (eventId) => {
       return;
     }
 
-    // event_id mora postojati uvijek
+    // event_id must always be present
     const eventId = generateEventId();
     const now = Math.floor(Date.now() / 1000);
 
-    // ✅ topicTags je izveden iz inputa "tags"
+    // ✅ topicTags derived from the "tags" input field
     const topicTags = parseTopicTags(tags);
 
-    // Lokacija događaja: GPS (ako izabrano) → klik unutar kvadranta → centar kvadranta
+    // Event location priority: GPS (if selected) → click within quadrant → quadrant centre
     let eventLat;
     let eventLon;
 
@@ -471,14 +471,14 @@ const handleShowProof = async (eventId) => {
       eventLon = baseLon + 5; //lon0 + 5 = center of block
     }
 
-    // 👉 flagovi idu u topicTags
+    // 👉 flags are appended to topicTags
     if (reportFlag === "suspicious") {
       topicTags.push("flag:suspicious");
     } else if (reportFlag === "fake") {
       topicTags.push("flag:fake");
     }
 
-    // transport numericka polja
+    // transport numeric fields
     const delayVal = delayMinutes !== "" ? parseFloat(delayMinutes) : null;
     const severityVal = severity !== "" ? parseInt(severity, 10) : null;
 
@@ -492,7 +492,7 @@ const handleShowProof = async (eventId) => {
       lon: eventLon,
       timestamp: now,
 
-      // geo quality (opcionalno)
+      // geo quality (optional)
       location_accuracy_m:
         useDeviceLoc && deviceLoc ? deviceLoc.accuracy_m : null,
 
@@ -513,9 +513,9 @@ const handleShowProof = async (eventId) => {
 
       topic_tags: topicTags,
 
-      // Source & reputacija
+      // Source & reputation
       source_type: "human",
-      //reporter_confidence: - ispod je dodano 'source_reputation' umjesto zakomentarisanog 'reporter_confidence'
+      // reporter_confidence: replaced by source_reputation below
       source_reputation:
         typeof reporterConfidence === "number" ? reporterConfidence : 0.5,
       device_quality: null,
@@ -529,11 +529,11 @@ const handleShowProof = async (eventId) => {
 
       source_wallet: walletAddress || null,
 
-      // H3 / subcell – za sada null (određuje backend)
+      // H3 / subcell – null for now (determined by backend)
       subcell_id: null,
       h3_resolution: null,
 
-      // Transport
+      // Transport fields
       vehicle_id: isTransport && vehicleId ? vehicleId : null,
       route_id: isTransport && routeId ? routeId : null,
 
@@ -548,7 +548,7 @@ const handleShowProof = async (eventId) => {
           : null,
     };
 
-    // 🔐 POTPIS – samo ako imamo wallet
+    // 🔐 SIGNATURE – only if wallet is connected
     if (walletAddress) {
       try {
         const { message, signature } = await signEventPayload(
@@ -558,13 +558,13 @@ const handleShowProof = async (eventId) => {
         payload.signature = signature;
         payload.signed_payload = message;
       } catch (signErr) {
-        console.error("Potpisivanje eventa nije uspjelo:", signErr);
-        setStatus("⚠️ Potpisivanje događaja nije uspjelo ili je odbijeno.");
+        console.error("Event signing failed:", signErr);
+        setStatus("⚠️ Event signing failed or was rejected.");
         return;
       }
     }
 
-    // snapshot za /events/similar
+    // snapshot for /events/similar query
     const similaritySnapshot = {
       quadrant_id: payload.quadrant_id,
       kind: payload.kind,
@@ -583,7 +583,7 @@ const handleShowProof = async (eventId) => {
       });
 
       if (!res.ok) {
-        // 🛡 Poseban UX za dnevni limit (429 Too Many Requests)
+        // 🛡 Special UX for daily rate limit (429 Too Many Requests)
         if (res.status === 429) {
           let detailMessage = "";
           try {
@@ -596,12 +596,12 @@ const handleShowProof = async (eventId) => {
           setStatus(
             detailMessage
               ? `⚠️ ${detailMessage}`
-              : "⚠️ Dostigli ste dnevni limit događaja za ovaj wallet. Pokušajte ponovo sutra."
+              : "⚠️ You have reached the daily event limit for this wallet. Please try again tomorrow."
           );
         } else {
           const text = await res.text();
           console.error("Event API error:", text);
-          setStatus(`⚠️ Greška sa serverom: ${res.status}`);
+          setStatus(`⚠️ Server error: ${res.status}`);
         }
         return;
       }
@@ -609,7 +609,7 @@ const handleShowProof = async (eventId) => {
       const data = await res.json();
 
       setStatus(
-        `✅ Događaj zabilježen. trust_score = ${
+        `✅ Event recorded. trust_score = ${
           data?.trust_score?.toFixed ? data.trust_score.toFixed(3) : data.trust_score
         }`
       );
@@ -629,7 +629,7 @@ const handleShowProof = async (eventId) => {
       setSimilarEvents([]);
       setSimilarError("");
 
-      // reset inputa
+      // reset form inputs
       setKind("");
       setDescription("");
       setTags("");
@@ -639,7 +639,7 @@ const handleShowProof = async (eventId) => {
       setDelayMinutes("");
       setSeverity("");
 
-      // osvježi istoriju
+      // refresh event history
       if (activeQuadrant && activeQuadrant.tokenId) {
         try {
           const qid = String(activeQuadrant.tokenId);
@@ -742,7 +742,7 @@ const handleShowProof = async (eventId) => {
 
           {!canGeo && (
             <div style={{ marginTop: "0.25rem" }}>
-              ℹ️ Napomena: Geolocation u browseru obično traži HTTPS (osim localhost).
+              ℹ️ Note: Browser geolocation typically requires HTTPS (except on localhost).
             </div>
           )}
         </div>
@@ -755,7 +755,7 @@ const handleShowProof = async (eventId) => {
           <input
             type="text"
             className="ft-dapp-input"
-            placeholder="npr. transport_incident, flood..."
+            placeholder="e.g. transport_incident, flood..."
             value={kind}
             onChange={(e) => setKind(e.target.value)}
           />
@@ -1029,7 +1029,7 @@ const handleShowProof = async (eventId) => {
                               <button
                                 type="button"
                                 className="ft-proof-link"
-                                title="Prikaži subcell polygon na mapi"
+                                title="Show subcell polygon on the map"
                                 onClick={(evt) => {
                                   evt.stopPropagation();
                                   onSubcellClick({
@@ -1088,7 +1088,7 @@ const handleShowProof = async (eventId) => {
                       {ev.vehicle_id && <span>veh: {ev.vehicle_id}</span>}
                       {ev.route_id && <span>ruta: {ev.route_id}</span>}
                       {typeof ev.delay_minutes === "number" && (
-                        <span>kašnjenje: {ev.delay_minutes.toFixed(1)} min</span>
+                        <span>delay: {ev.delay_minutes.toFixed(1)} min</span>
                       )}
                       {typeof ev.severity === "number" && <span>sev: {ev.severity}</span>}
                     </div>
@@ -1134,7 +1134,7 @@ const handleShowProof = async (eventId) => {
           {similarError && <p className="ft-event-hint">⚠️ {similarError}</p>}
 
           {!similarLoading && !similarError && similarEvents.length === 0 && lastEventForSimilarity && (
-            <p className="ft-event-hint">Nema pronađenih sličnih događaja (ili je indeks još prazan).</p>
+            <p className="ft-event-hint">No similar events found (or the index is still empty).</p>
           )}
 
           {!similarLoading && !similarError && similarEvents.length > 0 && (
@@ -1175,11 +1175,11 @@ const handleShowProof = async (eventId) => {
         {transportSummary && (
           <div className="ft-event-summary">
             <span>
-              🚚 Transport događaja: <strong>{transportSummary.count}</strong>
+              🚚 Transport events: <strong>{transportSummary.count}</strong>
             </span>
             {transportSummary.avgDelay != null && (
               <span>
-                ⏱️ prosječno kašnjenje: <strong>{transportSummary.avgDelay.toFixed(1)} min</strong>
+                ⏱️ average delay: <strong>{transportSummary.avgDelay.toFixed(1)} min</strong>
               </span>
             )}
             {transportSummary.avgScore != null && (
@@ -1205,7 +1205,7 @@ const handleShowProof = async (eventId) => {
               <p><strong>Wallet:</strong> {shortenAddress(proofData.source_wallet)}</p>
               <p>
                 <strong>Hash:</strong>{" "}
-                <code>{proofData.event_hash || "— (legacy događaj ili hash nije izračunat)"}</code>
+                <code>{proofData.event_hash || "— (legacy event or hash not computed)"}</code>
               </p>
               <p><strong>Quadrant:</strong> {proofData.quadrant_id || "—"}</p>
               <p>
@@ -1260,7 +1260,7 @@ const handleShowProof = async (eventId) => {
     {showTimeline && timelineData && (
       <div>
         {timelineData.entries.length === 0 ? (
-          <p className="ft-event-hint">Nema anchor unosa za ovaj kvadrant.</p>
+          <p className="ft-event-hint">No anchor entries for this quadrant.</p>
         ) : (
           <ul className="ft-event-history-list">
             {timelineData.entries.map((entry, idx) => (
@@ -1413,7 +1413,7 @@ const handleShowProof = async (eventId) => {
                         })
                       }
                     >
-                      🧭 Prikaži subcell na mapi
+                      🧭 Show subcell on map
                     </button>
                   </span>
                 </div>
