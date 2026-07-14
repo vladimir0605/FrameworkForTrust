@@ -289,7 +289,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Contact
 
-Built by a solo developer with a belief that decentralized trust infrastructure
+Built by a small team of developers with a belief that decentralized trust infrastructure
 is one of the most important unsolved problems of our time.
 
 If you share that belief — reach out.
