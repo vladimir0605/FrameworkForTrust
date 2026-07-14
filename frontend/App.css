@@ -1,0 +1,2343 @@
+@import url(https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap);
+
+@font-face {
+  font-family: "DavidaOptiBold";
+  src: url("./assets/fonts/DavidaOpti-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+:root {
+  --ft-bg: #020617;       /* tamnije pozadinsko */
+  --ft-bg-alt: #020617;   /* sekundarna pozadina isto tamna */
+  --ft-primary: #3b82f6;
+  --ft-accent: #22c55e;
+  --ft-text: #e5e7eb;
+  --ft-muted: #9ca3af;
+  --ft-border: #0f172a;   /* malo tamnija ivica */
+  --ft-radius: 18px;
+  --ft-max-width: 1120px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--ft-bg);
+  color: var(--ft-text);
+}
+
+/* LIGHT TEMA – override varijabli kad je class ft-theme-light na body */
+
+body.ft-theme-light {
+  --ft-bg: #f9fafb;
+  --ft-bg-alt: #ffffff;
+  --ft-primary: #2563eb;
+  --ft-accent: #16a34a;
+  --ft-text: #0f172a;
+  --ft-muted: #4b5563;
+  --ft-border: #d1d5db;
+}
+
+/* GLAVNI WRAPPER */
+
+.ft-root {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(59, 130, 246, 0.35), transparent 55%),
+    radial-gradient(circle at bottom, rgba(34, 197, 94, 0.25), transparent 55%);
+}
+
+/* lakši background za light temu */
+
+body.ft-theme-light .ft-root {
+  background:
+    radial-gradient(circle at top, rgba(59, 130, 246, 0.18), transparent 55%),
+    radial-gradient(circle at bottom, rgba(34, 197, 94, 0.16), transparent 55%);
+}
+
+/* NAVBAR */
+
+.ft-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  backdrop-filter: blur(18px);
+  background: rgba(5, 8, 22, 0.9);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.9);
+}
+
+.ft-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;        /* ili 0 ako ne želiš zaobljenje */
+  object-fit: contain;
+}
+
+
+body.ft-theme-light .ft-nav {
+  background: rgba(249, 250, 251, 0.92);
+  border-bottom-color: rgba(229, 231, 235, 0.9);
+}
+
+.ft-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+}
+
+.ft-logo-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: radial-gradient(circle, var(--ft-accent), var(--ft-primary));
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.7);
+}
+
+.ft-brand-text {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.ft-nav-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.ft-nav-links button {
+  background: transparent;
+  border: none;
+  color: var(--ft-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ft-nav-links button:hover {
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--ft-text);
+}
+
+body.ft-theme-light .ft-nav-links button:hover {
+  background: rgba(229, 231, 235, 0.9);
+}
+
+/* NAV – desna strana: tema + jezik */
+
+.ft-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ft-theme-toggle button {
+  background: transparent;
+  border-radius: 999px;
+  border: 1px solid var(--ft-border);
+  color: var(--ft-muted);
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.ft-theme-toggle button:hover {
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--ft-text);
+  transform: translateY(-1px);
+}
+
+body.ft-theme-light .ft-theme-toggle button:hover {
+  background: rgba(229, 231, 235, 0.9);
+}
+
+.ft-lang-switch select {
+  background: #020617;
+  color: var(--ft-text);
+  border-radius: 999px;
+  border: 1px solid var(--ft-border);
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+body.ft-theme-light .ft-lang-switch select {
+  background: #f9fafb;
+}
+
+/* LAYOUT MAIN */
+
+main {
+  max-width: var(--ft-max-width);
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+/* HERO */
+
+.ft-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2.2fr);
+  gap: 2.5rem;
+  align-items: center;
+  padding: 2rem 1.25rem 2.5rem;
+}
+
+.ft-hero h1 {
+  font-family: "DavidaOptiBold", "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(2.4rem, 3.7vw, 3.2rem);
+  letter-spacing: 0.06em;
+  margin: 0.2rem 0 0.6rem;
+  white-space: nowrap;  /* ne dozvoljava se prelom */
+}
+
+.ft-tagline {
+  color: var(--ft-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+
+.ft-hero-subtitle {
+  color: var(--ft-muted);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  max-width: 34rem;
+}
+
+.ft-hero-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.4rem;
+}
+
+.ft-hero-buttons button {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.6rem 1.3rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease,
+    border-color 0.1s ease;
+}
+
+.ft-hero-buttons button:first-child {
+  background: linear-gradient(135deg, var(--ft-primary), var(--ft-accent));
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
+  color: white;
+}
+
+.ft-hero-buttons button:first-child:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px rgba(37, 99, 235, 0.6);
+}
+
+.ft-hero-buttons button:last-child {
+  background: transparent;
+  border-color: var(--ft-border);
+  color: var(--ft-text);
+}
+
+.ft-hero-buttons button:last-child:hover {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+body.ft-theme-light .ft-hero-buttons button:last-child:hover {
+  background: rgba(229, 231, 235, 0.9);
+}
+
+/* Hero vizuelni dio (desno) */
+
+.ft-hero-visual {
+  position: relative;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ft-globe-container {
+  position: relative;
+  z-index: 1;             /* bitno: iznad ::before aure */
+  width: 260px;
+  height: 260px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 0 40px rgba(15, 23, 42, 0.9);
+  background: radial-gradient(circle at 30% 20%, #020617, #020617);
+}
+
+.ft-hero-visual::before {
+  content: "";
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.22), transparent 55%),
+    radial-gradient(circle at 70% 80%, rgba(34, 197, 94, 0.22), transparent 55%);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  filter: blur(1px);
+  opacity: 0.6;
+  z-index: 0;
+}
+
+/* Glavna kartica za Kontrolu kvadranta (Sidebar) */
+
+.ft-dapp-controls-card {
+  margin-top: 1.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--ft-border);
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.6);
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+body.ft-theme-light .ft-dapp-controls-card {
+  background: #f9fafb;
+  box-shadow: 0 10px 22px rgba(148, 163, 184, 0.35);
+}
+
+.ft-dapp-controls-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ft-dapp-controls-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ft-muted);
+}
+
+.ft-dapp-controls-subtitle {
+  font-size: 0.8rem;
+  color: var(--ft-muted);
+}
+
+/* Mapa */
+.ft-map-layout {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+  margin-top: 1rem;
+}
+
+.ft-map-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ft-map-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--ft-muted);
+}
+
+.ft-map-filter select {
+  background: #020617;
+  color: var(--ft-text);
+  border-radius: 999px;
+  border: 1px solid var(--ft-border);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+body.ft-theme-light .ft-map-filter select {
+  background: #f9fafb;
+}
+
+.ft-map-frame {
+  position: relative;
+  margin-top: 0.75rem;
+  border-radius: 20px;
+  flex: 1 1 auto;
+  min-height: 500px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.9);
+}
+
+body.ft-theme-light .ft-map-frame {
+  border-color: rgba(229, 231, 235, 0.9);
+}
+
+.ft-map-frame .leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+.ft-map-hover-info {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  max-width: 300px;
+  font-size: 14px;
+  color: #111827;
+}
+
+.ft-map-layout .ft-dapp-controls-card {
+  flex: 0 0 280px;
+  max-width: 320px;
+}
+
+@media (max-width: 900px) {
+  .ft-map-layout {
+    flex-direction: column;
+  }
+
+  .ft-map-layout .ft-dapp-controls-card {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+
+/* Tijelo */
+
+.ft-dapp-controls-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.ft-dapp-section {
+  margin-top: 0.2rem;
+}
+
+.ft-dapp-section-title {
+  margin: 0 0 0.15rem 0;
+  font-size: 0.88rem;
+}
+
+.ft-dapp-wallet-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ft-muted);
+  word-break: break-all;
+}
+
+/* Red sa dugmadi */
+
+.ft-dapp-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* Dugmad – isti ton kao u walletu */
+
+.ft-dapp-btn-primary,
+.ft-dapp-btn-secondary {
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  border: 1px solid var(--ft-border);
+  transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+/* (ako budeš negdje koristio primarno dugme) */
+.ft-dapp-btn-primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--ft-primary), var(--ft-accent));
+  color: #ffffff;
+}
+
+.ft-dapp-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.6);
+}
+
+/* Sekundarno – “Osvježi kvadrate” */
+
+.ft-dapp-btn-secondary {
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--ft-text);
+}
+
+.ft-dapp-btn-secondary:hover {
+  background: rgba(30, 64, 175, 0.85);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.7);
+}
+
+body.ft-theme-light .ft-dapp-btn-secondary {
+  background: #e5e7eb;
+}
+
+body.ft-theme-light .ft-dapp-btn-secondary:hover {
+  background: #d1d5db;
+}
+
+
+/* SEKCIJE */
+
+.ft-section {
+  margin-top: 2.5rem;
+  padding: 1.5rem 1.25rem;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: var(--ft-radius);
+  border: 1px solid rgba(15, 23, 42, 0.9);
+}
+
+/* Jače tamna pozadina sekcija u dark modu */
+body:not(.ft-theme-light) .ft-section {
+  background: rgba(3, 7, 18, 0.96);
+  border-color: #020617;
+}
+
+/* Kadar mape (okvir oko Leaflet-a) */
+body:not(.ft-theme-light) .ft-map-frame {
+  background: rgba(3, 7, 18, 0.98);
+  border-radius: 20px;
+  border: 1px solid #020617;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85);
+}
+
+/* Event kartica ispod mape */
+body:not(.ft-theme-light) .ft-event-card {
+  background: rgba(3, 7, 18, 0.96);
+  border-radius: 18px;
+  border: 1px solid #020617;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
+}
+
+/* Wallet kartica u dark modu – malo tamnija unutra */
+body:not(.ft-theme-light) .ft-wallet-card {
+  background: radial-gradient(
+    circle at top left,
+    rgba(59, 130, 246, 0.12),
+    #020617
+  );
+}
+
+
+body.ft-theme-light .ft-section {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(229, 231, 235, 0.9);
+}
+
+.ft-section h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+}
+
+.ft-section p {
+  margin: 0.25rem 0 0.75rem;
+  color: var(--ft-muted);
+  line-height: 1.6;
+}
+
+/* WHITEPAPER & VIDEO */
+
+.ft-whitepaper-actions {
+  margin: 1rem 0 1.5rem;
+}
+
+.ft-whitepaper-actions button {
+  border-radius: 999px;
+  border: 1px solid var(--ft-primary);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--ft-text);
+  padding: 0.6rem 1.3rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.1s ease, color 0.1s ease, transform 0.1s ease;
+}
+
+body.ft-theme-light .ft-whitepaper-actions button {
+  background: #ffffff;
+}
+
+.ft-whitepaper-actions button:hover {
+  background: var(--ft-primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.ft-video-section h3 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.ft-video-section p {
+  font-size: 0.9rem;
+}
+
+.ft-video-wrapper {
+  margin-top: 0.6rem;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.9);
+  background: black;
+  aspect-ratio: 16 / 9;
+}
+
+body.ft-theme-light .ft-video-wrapper {
+  border-color: rgba(229, 231, 235, 0.9);
+}
+
+.ft-video-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* MAPA + WALLET */
+
+.ft-map-container {
+  min-height: 360px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.9);
+}
+
+.ft-map-large {
+  margin-top: 1rem;
+  min-height: 480px;
+}
+
+.ft-map-container .leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Omotač oko walleta + on-chain status panela */
+
+.ft-dapp-wallet {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* GCDWallet je već u .ft-wallet-card – da se lepo rastegne */
+
+.ft-dapp-wallet .ft-wallet-card {
+  flex: 2 1 260px;
+  min-width: 0;
+}
+
+
+/* Karte za wallet – koristi se u GCDWallet root-u */
+/* Osnovna kartica za wallet (već smo je ranije definisali, možeš prepisati ili pojačati) */
+/* 🟣 Wallet kartica u dark modu */
+@media (prefers-color-scheme: dark) {
+.ft-wallet-card {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: #141823;          /* ista tj. logična pozadina kao druge kartice */
+  border: 1px solid #283044;
+  color: #f5f7ff;
+}
+
+body.ft-theme-light .ft-wallet-card {
+  background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), #ffffff);
+  box-shadow: 0 10px 25px rgba(148, 163, 184, 0.3);
+}
+
+/* Header: naslov + dugme za connect */
+
+/* Header GCD Wallet kartice */
+.ft-wallet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Natpis "GCD Wallet" da bude kao naslovi drugih panela */
+.ft-wallet-header h3 {
+  margin: 0;
+  font-size: 1rem;        /* uskladi s drugim panelima ako koristiš 1rem ili 1.05rem */
+  font-weight: 600;
+}
+
+.ft-wallet-connect-btn {
+  border-radius: 999px;
+  border: 1px solid var(--ft-border);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--ft-text);
+  padding: 0.35rem 0.9rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.ft-wallet-connect-btn:hover {
+  background: var(--ft-primary);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.55);
+  transform: translateY(-1px);
+}
+
+  /* Dugmad malo “neonskija” u mraku */
+  .ft-wallet-connect-btn,
+  .ft-wallet-send-btn {
+    border-radius: 999px;
+    border: 1px solid rgba(129, 140, 248, 0.4);
+    background: linear-gradient(
+      135deg,
+      rgba(79, 70, 229, 0.18),
+      rgba(14, 165, 233, 0.18)
+    );
+    color: #e5e7eb;
+  }
+
+  .ft-wallet-connect-btn.is-connected {
+    border-color: rgba(34, 197, 94, 0.65);
+    background: linear-gradient(
+      135deg,
+      rgba(34, 197, 94, 0.2),
+      rgba(22, 163, 74, 0.12)
+    );
+  }
+}
+
+/* Redovi (adresa/mreža, balans/događaji) */
+
+.ft-wallet-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.ft-wallet-col {
+  flex: 1 1 45%;
+  min-width: 0;
+}
+
+/* Podnaslov "Geo Quadrant Credits" – isti stil kao opisi u drugim karticama */
+.ft-wallet-label {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+  /* Ključni brojevi/tekst – da budu “jaki” */
+  .ft-wallet-address,
+  .ft-wallet-network,
+  .ft-wallet-balance,
+  .ft-wallet-events {
+    color: #e5e7eb;
+    font-weight: 500;
+  }
+
+  .ft-wallet-network {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      "Liberation Mono", "Courier New", monospace;
+    font-size: 0.83rem;
+  }
+
+
+.ft-wallet-balance {
+  font-weight: 600;
+}
+
+/* Transfer blok */
+
+.ft-wallet-transfer {
+  margin-top: 0.4rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(15, 23, 42, 0.65);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+body.ft-theme-light .ft-wallet-transfer {
+  background: rgba(248, 250, 252, 0.96);
+  border-color: rgba(209, 213, 219, 0.9);
+}
+
+.ft-wallet-transfer-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.ft-wallet-input {
+  border-radius: 999px;
+  border: 1px solid var(--ft-border);
+  background: rgba(15, 23, 42, 0.95);
+  color: var(--ft-text);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+body.ft-theme-light .ft-wallet-input {
+  background: #f9fafb;
+}
+
+.ft-wallet-input::placeholder {
+  color: var(--ft-muted);
+}
+
+.ft-wallet-send-btn {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, var(--ft-primary), var(--ft-accent));
+  color: #ffffff;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.ft-wallet-send-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.6);
+}
+
+/* Status poruka */
+
+  /* Status poruke walleta */
+  .ft-wallet-status {
+    margin-top: 0.75rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    color: #e5e7eb;
+    background: rgba(15, 23, 42, 0.9);
+  }
+
+  /* GCD off-chain saldo i današnje nagrade */
+  .gcdwallet-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.86rem;
+    color: #cbd5f5;
+  }
+.gcdwallet-row strong {
+    color: #f9fafb;
+    font-weight: 600;
+  }
+
+  .gcdwallet-status {
+    margin-top: 0.35rem;
+    font-size: 0.78rem;
+  }
+
+  .gcdwallet-status.gcdwallet-status-secondary {
+    color: #a5b4fc; /* svijetlo ljubičasta hints */
+  }
+
+/* Dodatne informacije pored wallet-a */
+
+/* Kartica za On-chain status */
+
+.ft-dapp-wallet-hint {
+  flex: 1.3 1 220px;
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--ft-border);
+
+  background: rgba(15,23,42,0.6);
+
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.6);
+  font-size: 0.86rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+body.ft-theme-light .ft-dapp-wallet-hint {
+  background: #f9fafb;
+  box-shadow: 0 8px 20px rgba(148, 163, 184, 0.35);
+}
+
+/* Naslov i sadržaj */
+
+.ft-dapp-wallet-hint h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.ft-dapp-wallet-hint ul {
+  margin: 0.2rem 0 0;
+  padding-left: 1.1rem;
+  padding-right: 0;
+  list-style: disc;
+}
+
+.ft-dapp-wallet-hint li {
+  margin-bottom: 0.2rem;
+  color: var(--ft-muted);
+  line-height: 1.35;
+}
+
+
+/* FAQ */
+
+.ft-faq-item + .ft-faq-item {
+  margin-top: 1.1rem;
+}
+
+.ft-faq-item h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.ft-faq-item p {
+  margin-top: 0.35rem;
+  color: var(--ft-muted);
+}
+
+/* FOOTER */
+
+.ft-footer {
+  border-top: 1px solid rgba(15, 23, 42, 0.9);
+  padding: 0.9rem 1.5rem 1.2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ft-muted);
+  background: rgba(5, 8, 22, 0.95);
+}
+
+body.ft-theme-light .ft-footer {
+  background: rgba(249, 250, 251, 0.94);
+  border-top-color: rgba(229, 231, 235, 0.9);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .ft-nav {
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+
+  .ft-nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .ft-nav-controls {
+    order: 2;
+  }
+
+  .ft-hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 1.4rem;
+  }
+
+  .ft-hero-visual {
+    order: -1;
+  }
+
+  .ft-section {
+    padding: 1.25rem 1rem;
+  }
+
+  .ft-map-large {
+    min-height: 360px;
+  }
+
+  .ft-dapp-wallet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+
+@media (max-width: 480px) {
+  .ft-hero h1 {
+    white-space: normal;      /* dozvoli prelom na ultra uskim ekranima */
+    font-size: 2.1rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 900px) {
+  .ft-dapp-wallet {
+    flex-direction: column;
+  }
+
+  .ft-dapp-wallet .ft-wallet-card,
+  .ft-dapp-wallet-hint {
+    width: 100%;
+  }
+}
+
+/* RTL specifična podešavanja (za arapski) */
+
+.ft-rtl {
+  direction: rtl;
+}
+
+/* Navigacija – brand i linkovi desno, ali kontrole (tema/jezik) ostaju desno po smislu */
+.ft-rtl .ft-nav {
+  flex-direction: row-reverse;
+}
+
+.ft-rtl .ft-nav-brand {
+  flex-direction: row-reverse;
+}
+
+.ft-rtl .ft-nav-links {
+  flex-direction: row-reverse;
+}
+
+/* Hero – tekst poravnan desno, globus sada na lijevoj strani na većim ekranima */
+
+.ft-rtl .ft-hero {
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 3fr);
+}
+
+.ft-rtl .ft-hero-content {
+  text-align: right;
+}
+
+.ft-rtl .ft-hero-buttons {
+  justify-content: flex-end;
+}
+
+/* Kontrola - kontrol panel */
+.ft-rtl .ft-dapp-controls-card {
+  text-align: right;
+}
+
+.ft-rtl .ft-dapp-controls-row {
+  justify-content: flex-end;
+}
+
+
+/* Sekcije (project, whitepaper, FAQ) – desno poravnanje teksta */
+
+.ft-rtl .ft-section {
+  text-align: right;
+}
+
+/* dApp layout – zadrži mapu gore, wallet ispod, ali tekst desno poravnat */
+
+.ft-rtl .ft-dapp-wallet,
+.ft-rtl .ft-dapp-wallet-hint,
+.ft-rtl .ft-wallet-card {
+  text-align: right;
+}
+
+/* U RTL modu, liste i label-e često je ljepše malo gurnuti s desne strane */
+
+.ft-rtl .ft-dapp-wallet-hint ul {
+  padding-right: 1.1rem;
+  padding-left: 0;
+}
+
+/* Koordinata */
+
+.ft-coordinate-search {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.ft-coordinate-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.ft-coordinate-label {
+  min-width: 42px;         /* da "Lat:" i "Lon:" budu lijepo poravnati */
+  color: var(--ft-muted);
+}
+
+
+/*Prolagodjenje za evente */
+.ft-event-card {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--ft-border);
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.6);
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+body.ft-theme-light .ft-event-card {
+  background: #f9fafb;
+  box-shadow: 0 10px 22px rgba(148, 163, 184, 0.35);
+}
+
+.ft-event-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.ft-event-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ft-muted);
+}
+
+.ft-event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.ft-event-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ft-event-label {
+  font-size: 0.8rem;
+  color: var(--ft-muted);
+}
+
+.ft-event-wallet {
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+ 
+/* korekcija formata za istoriju */
+.ft-event-history {
+  margin-top: 0.8rem;
+  border-top: 1px solid var(--ft-border);
+  padding-top: 0.6rem;
+}
+
+.ft-event-history-title {
+  margin: 0 0 0.3rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.ft-event-history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ft-event-history-item + .ft-event-history-item {
+  margin-top: 0.35rem;
+}
+
+.ft-event-history-main {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.ft-event-kind {
+  font-weight: 500;
+}
+
+.ft-event-score {
+  font-size: 0.8rem;
+  color: var(--ft-muted);
+}
+
+.ft-event-history-meta {
+  font-size: 0.78rem;
+  color: var(--ft-muted);
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ft-event-tags {
+  font-style: italic;
+}
+
+
+/* Malo formatiranja transporta */
+.ft-event-summary {
+  margin-top: 0.6rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--ft-border);
+  font-size: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  color: var(--ft-muted);
+}
+
+
+.ft-update-btn-wrapper {
+  margin-top: 0.8rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ft-dapp-btn-secondary {
+  border-radius: 999px;
+  border: 1px solid var(--ft-border);
+  background: transparent;
+  color: var(--ft-text);
+  padding: 0.45rem 1.1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+
+.ft-dapp-btn-secondary:hover:enabled {
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.6);
+  transform: translateY(-1px);
+}
+
+body.ft-theme-light .ft-dapp-btn-secondary:hover:enabled {
+  background: rgba(229, 231, 235, 0.9);
+}
+
+.ft-dapp-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* Fullscreen overlay preko cijelog ekrana */
+.ft-update-overlay {
+  position: fixed;
+  inset: 0; /* top/right/bottom/left: 0 */
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500; /* iznad mape, navbara itd. */
+}
+
+/* Kartica modala centrirana iznad mape/stranice */
+.ft-update-modal {
+  background: var(--ft-bg-alt);
+  border-radius: 18px;
+  padding: 1.5rem 1.7rem;
+  max-width: 540px;
+  width: min(540px, 94vw);
+  border: 1px solid var(--ft-border);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.8);
+  color: var(--ft-text);
+  outline: none; /* da nema plavi okvir */
+}
+
+/* Light tema varijanta */
+body.ft-theme-light .ft-update-modal {
+  background: #ffffff;
+  box-shadow: 0 20px 60px rgba(148, 163, 184, 0.5);
+}
+
+/* Malo ušminkavanja forme u modalu – koristi tvoju postojeću strukturu */
+
+.ft-update-modal form label {
+  display: block;
+  margin-top: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.ft-update-modal input,
+.ft-update-modal select {
+  margin-top: 0.3rem;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid var(--ft-border);
+  background: rgba(15, 23, 42, 0.95);
+  color: var(--ft-text);
+  box-sizing: border-box;
+}
+
+body.ft-theme-light .ft-update-modal input,
+body.ft-theme-light .ft-update-modal select {
+  background: #f9fafb;
+}
+
+/* Red sa dugmadima (već koristiš className="modal-buttons") */
+
+.modal-buttons {
+  margin-top: 1.2rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.modal-buttons button {
+  border-radius: 999px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+/* Primarno dugme (Sačuvaj) – gradient kao ostali primary btni */
+.modal-buttons button[type="submit"] {
+  background: linear-gradient(135deg, var(--ft-primary), var(--ft-accent));
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.6);
+}
+
+.modal-buttons button[type="submit"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.7);
+}
+
+/* Sekundarno dugme (Otkaži) – sivo */
+.cancel-button {
+  background: transparent;
+  border-color: var(--ft-border);
+  color: var(--ft-text);
+}
+
+.cancel-button:hover {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+body.ft-theme-light .cancel-button:hover {
+  background: rgba(229, 231, 235, 0.9);
+}
+
+
+/* ===== Modal (UpdateMetadata) – overlay + sadržaj ===== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72); /* taman overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--ft-bg-alt);
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  max-width: 520px;
+  width: 100%;
+  border: 1px solid var(--ft-border);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.7);
+  color: var(--ft-text);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal-content label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  gap: 0.25rem;
+}
+
+.modal-content input,
+.modal-content select {
+  border-radius: 10px;
+  border: 1px solid var(--ft-border);
+  padding: 0.4rem 0.6rem;
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--ft-text);
+  font-size: 0.9rem;
+}
+
+body.ft-theme-light .modal-content input,
+body.ft-theme-light .modal-content select {
+  background: #f9fafb;
+  color: #0f172a;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.modal-buttons button {
+  border-radius: 999px;
+  border: 1px solid var(--ft-border);
+  padding: 0.45rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.modal-buttons button[type="submit"] {
+  background: linear-gradient(135deg, var(--ft-primary), var(--ft-accent));
+  color: #fff;
+  border-color: transparent;
+}
+
+.modal-buttons .cancel-button {
+  background: transparent;
+  color: var(--ft-text);
+}
+
+
+
+
+
+
+
+
+.status-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  background: rgba(20, 20, 25, 0.85); /* tamno, dobro za dark mode */
+  color: #f5f5f5;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot-neutral {
+  background: #888;
+}
+
+.status-dot-ok {
+  background: #19c37d; /* zelena */
+}
+
+.status-dot-degraded {
+  background: #f5a623; /* žuta/narandžasta */
+}
+
+.status-dot-error {
+  background: #ff4b4b; /* crvena */
+}
+
+.status-main-text {
+  font-weight: 600;
+}
+
+.status-extra-text {
+  opacity: 0.8;
+  margin-left: 4px;
+}
+
+
+
+/* Fallback mod: CSS “globus” kad WebGL ne radi */
+.ft-globe-container.ft-globe-fallback {
+  background-size: cover;
+  background-repeat: repeat-x;
+  background-position: 0% 50%;
+  animation: ft-globe-spin 30s linear infinite;
+}
+
+/* Efekat “rotacije” – pomjeramo teksturu po x-osi */
+@keyframes ft-globe-spin {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+
+.ft-quadrant-meta-panel {
+  margin-top: 2rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.7);
+  max-width: 600px;
+}
+
+.ft-quadrant-meta-panel h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.ft-qmeta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.ft-qmeta-row label {
+  font-size: 0.85rem;
+  color: #cbd5f5;
+}
+
+.ft-qmeta-row input {
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.ft-qmeta-save-btn {
+  margin-top: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.ft-qmeta-error {
+  color: #fecaca;
+  font-size: 0.85rem;
+}
+
+.ft-qmeta-status {
+  color: #bbf7d0;
+  font-size: 0.85rem;
+}
+
+.ft-qmeta-warning {
+  margin-top: 0.5rem;
+  color: #fed7aa;
+  font-size: 0.8rem;
+}
+
+
+.ft-moderation-panel {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.9rem;
+  background: rgba(15, 23, 42, 0.8); /* tamni panel */
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.7);
+  font-size: 0.9rem;
+}
+
+.ft-moderation-panel h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.ft-field-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.75rem;
+}
+
+.ft-field-row label {
+  font-size: 0.78rem;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+}
+
+.ft-field-row input,
+.ft-field-row select,
+.ft-field-row textarea {
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.95);
+  color: #e5e7eb;
+  font-size: 0.85rem;
+}
+
+.ft-field-row input:focus,
+.ft-field-row select:focus,
+.ft-field-row textarea:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+}
+
+.ft-moderation-panel button {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  background: linear-gradient(90deg, #3b82f6, #22c55e);
+  color: #0b1120;
+  font-weight: 600;
+}
+
+.ft-moderation-panel button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ft-moderation-msg {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+
+.ft-moderation-hint-admin {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+
+
+/* 🌙 Globalni dark mode touch-up */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #020617; /* malo tamnije od #0f172a, ali ne crna rupa */
+    color: #e5e7eb;           /* svijetlo sivo */
+  }
+
+  .ft-section {
+    background: radial-gradient(circle at top, #020617 0%, #020617 40%, #020617 100%);
+  }
+}
+
+
+
+
+.ft-quadrant-info-card {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: #141823;
+  border: 1px solid #283044;
+  color: #f5f7ff;
+}
+
+.ft-quadrant-info-hint {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 0.75rem;
+}
+
+.ft-quadrant-info-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ft-quadrant-info-error {
+  margin-top: 0.5rem;
+  color: #ff6b6b;
+  font-size: 0.85rem;
+}
+
+.ft-quadrant-info-body {
+  margin-top: 0.75rem;
+}
+
+.ft-quadrant-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.ft-quadrant-id {
+  font-weight: 600;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.ft-quadrant-description {
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.ft-quadrant-rating {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.ft-quadrant-tags {
+  margin: 0.35rem 0 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ft-quadrant-tag {
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  background: #222b3b;
+  font-size: 0.75rem;
+}
+
+.ft-quadrant-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.5rem 1rem;
+  margin-top: 0.25rem;
+}
+
+.ft-quadrant-meta-label {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.ft-quadrant-meta-value {
+  font-size: 0.9rem;
+}
+
+
+
+
+
+/* Glavna kartica za admin / quadrant_editor panel */
+.ft-quadrant-meta-panel {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: #141823;          /* blago tamnija pozadina, kao ostale kartice */
+  border: 1px solid #283044;    /* tanka obrub-linija */
+  color: #f5f7ff;
+}
+
+/* Naslov i opis */
+.ft-quadrant-meta-panel h3 {
+  margin: 0 0 0.4rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ft-quadrant-meta-hint {
+  margin: 0 0 0.8rem 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* Redovi (ID + dugme, IPFS blok, ostala polja) */
+.ft-quadrant-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.ft-quadrant-meta-row label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+/* Input polje */
+.ft-quadrant-meta-input {
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid #36415a;
+  background: #0f131e;
+  color: #f5f7ff;
+  font-size: 0.9rem;
+}
+
+.ft-quadrant-meta-input:focus {
+  outline: none;
+  border-color: #4b7bff;
+  box-shadow: 0 0 0 1px rgba(75, 123, 255, 0.4);
+}
+
+/* Dugme */
+.ft-quadrant-meta-btn {
+  align-self: flex-end;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: #4b7bff;
+  color: #ffffff;
+  transition: background 0.15s ease, transform 0.05s ease;
+  white-space: nowrap;
+}
+
+.ft-quadrant-meta-btn:hover:not(:disabled) {
+  background: #668cff;
+}
+
+.ft-quadrant-meta-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.ft-quadrant-meta-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* IPFS blok */
+.ft-quadrant-ipfs-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.ft-quadrant-ipfs-cid {
+  display: inline-block;
+  padding: 0.25rem 0.45rem;
+  background: #0f131e;
+  border-radius: 0.4rem;
+  border: 1px solid #36415a;
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.ft-quadrant-ipfs-link {
+  font-size: 0.8rem;
+  color: #8fb4ff;
+  text-decoration: underline;
+}
+
+.ft-quadrant-ipfs-link:hover {
+  color: #c2d4ff;
+}
+
+.ft-quadrant-ipfs-empty {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* (opciono) poruke o grešci / uspjehu ako ih imaš u komponenti */
+.ft-quadrant-meta-error {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #ff6b6b;
+}
+
+.ft-quadrant-meta-success {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #4ade80;
+}
+
+
+.ft-wallet-card .ft-wallet-title {
+  margin: 0 0 0.15rem 0;
+  font-size: 0.95rem !important;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e3e7ff;
+  opacity: 0.95;
+}
+
+
+.ft-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.ft-modal {
+  background: #111827;
+  color: #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.ft-modal-title {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.ft-modal-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.ft-modal-label {
+  font-weight: 500;
+  color: #9ca3af;
+}
+
+.ft-modal-value {
+  text-align: right;
+  word-break: break-all;
+}
+
+.ft-modal-separator {
+  border: none;
+  border-top: 1px solid #374151;
+  margin: 0.75rem 0;
+}
+
+.ft-modal-actions {
+  margin-top: 1rem;
+  text-align: right;
+}
+
+.ft-event-badge-ai {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  line-height: 1;
+  white-space: nowrap;
+  background: #0f172a;
+  border: 1px solid #4b5563;
+  color: #e5e7eb;
+  opacity: 0.95;
+}
+
+
+.ft-event-ai-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  color: #fbbf24;          /* jasna žuta, po potrebi izmejniti  */
+  border-bottom: 1px solid #4b5563;
+  padding-bottom: 4px;
+  margin-bottom: 0.5rem;
+}
+
+
+.ft-info-card {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+  padding: 1.2rem 1.4rem;
+  margin-top: 1rem;
+}
+
+.ft-panel-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+
+.ft-panel-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.ft-dapp-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+
+
+
+
+/* === ISTAKNUTI NASLOVI SEKCIJA (Project, Whitepaper, Repo, Map dApp, FAQ) === */
+
+.ft-section h2.ft-section-title {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+/* Malo jača boja naslova u oba moda */
+body:not(.ft-theme-light) .ft-section h2.ft-section-title {
+  color: #e5e7eb;
+}
+
+body.ft-theme-light .ft-section h2.ft-section-title {
+  color: #0f172a;
+}
+
+/* Repo kartica – malo “hero” naslov */
+#fft-repo .ft-panel-title.ft-section-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+/* Jači naslov za FAQ blokove */
+#faq .ft-faq-item h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Intro video naslov da bude upadljiviji */
+.ft-video-section .ft-video-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+
+
+.ft-selection-info {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.9); /* tamna podloga */
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #e5e7eb; /* svijetli tekst */
+  font-size: 0.92rem;
+  line-height: 1.4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  border-left: 4px solid #22c55e; /*green*/
+}
+
+.ft-selection-info-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #ffffff;
+  margin-bottom: 0.35rem;
+}
+
+.ft-selection-info-row {
+  margin: 0.15rem 0;
+  word-break: break-word;
+}
+
+.ft-selection-info-label {
+  color: #93c5fd; /* blago plava */
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+.ft-selection-info-value {
+  color: #f8fafc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; /* za koordinate/ID */
+  font-size: 0.88rem;
+}
+
+.ft-wallet-resume-banner {
+  background: var(--color-background-secondary, #f5f5f0);
+  border: 1px solid var(--color-border-secondary, #ddd);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.ft-wallet-resume-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+
+
+/* ─────────────────────────────────────
+   RewardForm
+───────────────────────────────────── */
+
+.ft-reward-panel {
+  background: var(--color-background-primary, #1e293b);
+  border: 1px solid var(--color-border-tertiary, rgba(148, 163, 184, 0.2));
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+
+.ft-reward-panel h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary, #e5e7eb);
+  margin-bottom: 12px;
+}
+
+/* Wrapper za svako input polje */
+.ft-reward-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+/* Labela iznad inputa */
+.ft-reward-label {
+  font-size: 12px;
+  color: var(--color-text-secondary, #94a3b8);
+  font-weight: 500;
+}
+
+/* Prikaz wallet adrese pošiljaoca */
+.ft-reward-sender {
+  font-size: 12px;
+  color: var(--color-text-secondary, #94a3b8);
+  margin-bottom: 12px;
+}
+
+.ft-reward-sender code {
+  background: var(--color-background-secondary, #0f172a);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: var(--color-text-primary, #e5e7eb);
+}
+
+/* Poruka kad wallet nije konektovan */
+.ft-reward-no-wallet {
+  padding: 12px;
+  background: var(--color-background-secondary, #0f172a);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.ft-reward-hint {
+  font-size: 12px;
+  color: var(--color-text-tertiary, #64748b);
+  margin-top: 6px;
+}
+
+
+
+.ft-status-success {
+  color: #22c55e;  /* zelena */
+}
+
+.ft-status-error {
+  color: #ef4444;  /* crvena */
+}
+
+.ft-status-warning {
+  color: #f59e0b;  /* žuta */
+}
+
+
+.ft-search-bar {
+  margin-bottom: 10px;
+}
+
+.ft-search-bar-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.ft-error-msg {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 4px;
+  padding: 0;
+}
+
+
+/* ─────────────────────────────────────
+   UpdateMetadata modal
+───────────────────────────────────── */
+
+/* Loading poruka */
+.ft-modal-loading {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #94a3b8);
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+/* CID info blok */
+.ft-modal-cid-info {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary, #94a3b8);
+  background: var(--color-background-secondary, #0f172a);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+/* CID kod */
+.ft-modal-cid-code {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--color-text-primary, #e5e7eb);
+  background: rgba(0,0,0,0.2);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* IPFS link */
+.ft-modal-cid-link {
+  color: var(--color-accent, #2e6de3);
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+
+.ft-modal-cid-link:hover {
+  text-decoration: underline;
+}
+
+/* Uspješna poruka — zelena */
+.ft-modal-success {
+  font-size: 13px;
+  font-weight: 600;
+  color: #22c55e;
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: 6px;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Wallet info u modalu */
+.ft-modal-wallet-info {
+  font-size: 12px;
+  color: var(--color-text-secondary, #94a3b8);
+  margin-bottom: 12px;
+}
+
+.ft-modal-wallet-info code {
+  font-family: monospace;
+  background: var(--color-background-secondary, #0f172a);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--color-text-primary, #e5e7eb);
+}
+
+
+.ft-modal-authorize-btn {
+  display: block;
+  width: 100%;
+  padding: 9px 16px;
+  margin-bottom: 0.75rem;
+  background: var(--color-background-secondary, #1e293b);
+  color: var(--color-text-primary, #e5e7eb);
+  border: 1px solid var(--color-border-secondary, rgba(148,163,184,0.3));
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.ft-modal-authorize-btn:hover:not(:disabled) {
+  background: var(--color-background-tertiary, #334155);
+}
+
+.ft-modal-authorize-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+
+
+/* === Testnet faucet (add to App.css) === */
+
+.ft-faucet-card {
+  border: 1px dashed #f59e0b;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.ft-faucet-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.ft-faucet-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #f59e0b;
+  border: 1px solid #f59e0b;
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+}
+
+.ft-faucet-description {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--ft-text-muted, #6b7280);
+  margin-bottom: 0.75rem;
+}
+
+.ft-faucet-status {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.ft-faucet-status.is-error {
+  color: #ef4444;
+}
+
+.ft-faucet-hint {
+  font-size: 0.75rem;
+  color: var(--ft-text-muted, #6b7280);
+  margin-top: 0.35rem;
+}
