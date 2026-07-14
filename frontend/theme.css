@@ -1,0 +1,60 @@
+/* theme.css */
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f7f9fc;
+  color: #333;
+}
+
+.leaflet-container {
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Tooltip stil */
+.leaflet-tooltip {
+  background-color: #ffffffdd;
+  border: 1px solid #999;
+  border-radius: 4px;
+  padding: 6px;
+  font-size: 13px;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+/* Popup stil */
+.leaflet-popup-content {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Dugmad */
+button {
+  padding: 6px 12px;
+  margin: 4px;
+  background-color: #2e6de3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input, select {
+  margin: 4px 0;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
