@@ -12,15 +12,15 @@ interface IFfTRegistry {
     function treasury()  external view returns (address);
 }
 
-// ✅ FIX (critical #2): dodan AccessControl uz Ownable2Step
-// ORACLE_ROLE omogućava backendu da poziva reward() i slash()
-// bez da backend wallet ima owner privilegije
+// ✅ FIX (critical #2): AccessControl added alongside Ownable2Step
+// ORACLE_ROLE allows the backend to call reward() and slash()
+// without the backend wallet needing owner privileges
 contract FfTStaking is Ownable2Step, AccessControl, Pausable {
     using SafeERC20 for IERC20;
 
     // ── Roles ─────────────────────────────────────────────────────────────────
-    // ✅ FIX (critical #2): ORACLE_ROLE za backend automatizaciju
-    // Backend wallet dobija ovu rolu, ne owner privilegije:
+    // ✅ FIX (critical #2): ORACLE_ROLE for backend automation
+    // The backend wallet is granted this role, not owner privileges:
     // staking.grantRole(ORACLE_ROLE, backendWalletAddress)
     bytes32 public constant ORACLE_ROLE = keccak256("ORACLE_ROLE");
 
@@ -34,12 +34,12 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
 
     uint256 public totalStaked;
 
-    // ✅ FIX (critical #1): odvojen reward pool od staked tokena
-    // rewardPool = tokeni koji su eksplicitno funded za nagrađivanje
-    // Ne koriste se stakovi korisnika za isplatu nagrada
+    // ✅ FIX (critical #1): reward pool separated from staked tokens
+    // rewardPool = tokens explicitly funded for rewarding contributors
+    // User stakes are never used to pay out rewards
     uint256 public rewardPool;
 
-    // ✅ FIX (high #2): maksimalni stake po korisniku (default: bez limita)
+    // ✅ FIX (high #2): maximum stake per user (default: unlimited)
     uint256 public maxStakePerUser = type(uint256).max;
 
     // ── Events ────────────────────────────────────────────────────────────────
@@ -50,9 +50,9 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
     event SweptToTreasury(uint256 amount, address indexed by);
     event LockPeriodUpdated(uint256 newPeriod, address indexed by);
     event RegistryUpdated(address indexed registry, address indexed by);
-    // ✅ FIX (critical #1): event za punjenje reward poola
+    // ✅ FIX (critical #1): event for funding the reward pool
     event RewardPoolFunded(uint256 amount, address indexed by);
-    // ✅ FIX (high #2): event za promjenu maxStakePerUser
+    // ✅ FIX (high #2): event for updating maxStakePerUser
     event MaxStakePerUserUpdated(uint256 newMax, address indexed by);
 
     // ── Constructor ───────────────────────────────────────────────────────────
@@ -66,28 +66,28 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
         require(initialOwner  != address(0), "owner=0");
         require(registryAddr  != address(0), "registry=0");
 
-        // ✅ FIX (medium #1): validacija da registryAddr je contract
+        // ✅ FIX (medium #1): validate that registryAddr is a contract
         require(registryAddr.code.length > 0, "registry not contract");
 
         registry   = IFfTRegistry(registryAddr);
         lockPeriod = initialLockPeriod;
 
-        // ✅ FIX (critical #2): dodijeli DEFAULT_ADMIN_ROLE i ORACLE_ROLE owneru
-        // Owner može naknadno grantovati ORACLE_ROLE backend walletu:
+        // ✅ FIX (critical #2): grant DEFAULT_ADMIN_ROLE and ORACLE_ROLE to owner
+        // Owner can later grant ORACLE_ROLE to the backend wallet:
         // staking.grantRole(ORACLE_ROLE, backendWallet)
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(ORACLE_ROLE,        initialOwner);
 
-        emit RegistryUpdated(registryAddr,     initialOwner);
+        emit RegistryUpdated(registryAddr,        initialOwner);
         emit LockPeriodUpdated(initialLockPeriod, initialOwner);
     }
 
     // ── Admin setters ─────────────────────────────────────────────────────────
 
-    // ✅ FIX (medium #1): dodata code.length provjera
+    // ✅ FIX (medium #1): added code.length check
     function setRegistry(address registryAddr) external onlyOwner {
-        require(registryAddr != address(0),        "registry=0");
-        require(registryAddr.code.length > 0,     "registry not contract");
+        require(registryAddr != address(0),       "registry=0");
+        require(registryAddr.code.length > 0,    "registry not contract");
         registry = IFfTRegistry(registryAddr);
         emit RegistryUpdated(registryAddr, msg.sender);
     }
@@ -97,7 +97,7 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
         emit LockPeriodUpdated(newPeriod, msg.sender);
     }
 
-    // ✅ FIX (high #2): setter za maksimalni stake po korisniku
+    // ✅ FIX (high #2): setter for maximum stake per user
     function setMaxStakePerUser(uint256 max) external onlyOwner {
         require(max > 0, "max=0");
         maxStakePerUser = max;
@@ -117,15 +117,15 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
 
     // ── Reward pool management ────────────────────────────────────────────────
 
-    // ✅ FIX (critical #1): funkcija za punjenje reward poola
-    // Owner ili oracle puni pool zasebno od stakova korisnika.
-    // Ova sredstva su namijenjena isključivo za nagrađivanje —
-    // ne mogu se pobrkati sa stakovanim tokenima.
+    // ✅ FIX (critical #1): function for funding the reward pool
+    // Owner or oracle funds the pool separately from user stakes.
+    // These funds are exclusively reserved for rewarding contributors —
+    // they cannot be confused with staked tokens.
     //
-    // Primjer workflow-a:
-    //   1. Protocol wallet odobri (approve) FfTStaking da troši GCD
-    //   2. Pozove fundRewardPool(amount) da prenese u pool
-    //   3. Backend oracle poziva reward() za nagrađivanje korisnika
+    // Example workflow:
+    //   1. Protocol wallet approves FfTStaking to spend GCD
+    //   2. Calls fundRewardPool(amount) to transfer funds into the pool
+    //   3. Backend oracle calls reward() to reward contributors
     function fundRewardPool(uint256 amount) external whenNotPaused {
         require(amount > 0, "amount=0");
         _token().safeTransferFrom(msg.sender, address(this), amount);
@@ -138,19 +138,19 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
     function stake(uint256 amount) external whenNotPaused {
         require(amount > 0, "amount=0");
 
-        // ✅ FIX (high #2): provjera maxStakePerUser
+        // ✅ FIX (high #2): enforce maxStakePerUser
         require(
             staked[msg.sender] + amount <= maxStakePerUser,
             "Exceeds max stake per user"
         );
 
-        // Checks-Effects-Interactions pattern: state promjene prije transfera
+        // Checks-Effects-Interactions pattern: state changes before transfer
         staked[msg.sender] += amount;
         totalStaked        += amount;
 
-        // Reset lock perioda pri svakom novom staku
-        // NAPOMENA: ovo resetuje lock i za postojeće stakove.
-        // Dokumentovano u UI-u kako bi korisnici bili svjesni.
+        // Lock period resets on every new stake.
+        // NOTE: this also resets the lock for existing stakes.
+        // Documented in the UI so users are aware.
         lastStakeAt[msg.sender] = block.timestamp;
 
         _token().safeTransferFrom(msg.sender, address(this), amount);
@@ -177,9 +177,9 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
     // ── Reward ────────────────────────────────────────────────────────────────
 
     // ✅ FIX (critical #1 + critical #2):
-    //   - Nagrada se isplaćuje IZ rewardPool-a, NE iz staked tokena
-    //   - onlyRole(ORACLE_ROLE) umjesto onlyOwner —
-    //     backend wallet može automatski nagrađivati bez owner privilegija
+    //   - Reward is paid FROM rewardPool, NOT from staked tokens
+    //   - onlyRole(ORACLE_ROLE) instead of onlyOwner —
+    //     backend wallet can reward automatically without owner privileges
     function reward(address user, uint256 amount)
         external
         onlyRole(ORACLE_ROLE)
@@ -187,10 +187,10 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
     {
         require(user   != address(0), "user=0");
         require(amount > 0,           "amount=0");
-        // ✅ FIX (critical #1): provjera da postoji dovoljno u reward poolu
+        // ✅ FIX (critical #1): check that the reward pool has sufficient funds
         require(rewardPool >= amount,  "Insufficient reward pool");
 
-        // Smanji reward pool prije transfera (reentrancy zaštita)
+        // Decrease reward pool before transfer (reentrancy protection)
         rewardPool -= amount;
 
         _token().safeTransfer(user, amount);
@@ -199,8 +199,8 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
 
     // ── Slash ─────────────────────────────────────────────────────────────────
 
-    // ✅ FIX (critical #2): onlyRole(ORACLE_ROLE) umjesto onlyOwner
-    // Backend oracle može automatski kažnjavati bez owner privilegija
+    // ✅ FIX (critical #2): onlyRole(ORACLE_ROLE) instead of onlyOwner
+    // Backend oracle can automatically slash without owner privileges
     function slash(address user, uint256 amount)
         external
         onlyRole(ORACLE_ROLE)
@@ -212,8 +212,8 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
         uint256 s   = staked[user];
         uint256 cut = amount > s ? s : amount;
 
-        // Slashed tokeni ostaju u contractu kao surplus
-        // sweepSurplusToTreasury() ih može prebaciti u treasury
+        // Slashed tokens remain in the contract as surplus
+        // sweepSurplusToTreasury() can move them to the treasury
         staked[user]  = s - cut;
         totalStaked  -= cut;
 
@@ -222,14 +222,14 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
 
     // ── View helpers ──────────────────────────────────────────────────────────
 
-    /// @notice Ukupan balans GCD tokena u contractu
+    /// @notice Total GCD token balance held by this contract
     function contractTokenBalance() public view returns (uint256) {
         return _token().balanceOf(address(this));
     }
 
-    /// @notice Surplus = balans - totalStaked - rewardPool
-    /// @dev Ovo su slashed tokeni koji mogu ići u treasury
-    // ✅ FIX (critical #1): surplusBalance uzima u obzir i rewardPool
+    /// @notice Surplus = balance - totalStaked - rewardPool
+    /// @dev These are slashed tokens that can be swept to treasury
+    // ✅ FIX (critical #1): surplusBalance accounts for rewardPool as well
     function surplusBalance() public view returns (uint256) {
         uint256 bal      = contractTokenBalance();
         uint256 reserved = totalStaked + rewardPool;
@@ -256,7 +256,7 @@ contract FfTStaking is Ownable2Step, AccessControl, Pausable {
 
     // ── Interface support ─────────────────────────────────────────────────────
 
-    // ✅ Potrebno zbog višestrukog nasljeđivanja Ownable2Step + AccessControl
+    // ✅ Required due to multiple inheritance: Ownable2Step + AccessControl
     function supportsInterface(bytes4 interfaceId)
         public view
         override(AccessControl)
