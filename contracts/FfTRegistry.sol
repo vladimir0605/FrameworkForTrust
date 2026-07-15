@@ -26,51 +26,51 @@ contract FfTRegistry is Ownable2Step {
 
     // ── Setters ───────────────────────────────────────────────────────────────
 
-    /// @notice Postavi treasury adresu (može biti EOA multisig ili contract)
-    // ✅ FIX (medium #1): dodata provjera da adrese nisu iste
-    // Treasury može biti EOA (wallet/multisig) pa nema code.length provjere
+    /// @notice Set the treasury address (can be an EOA, multisig, or contract)
+    // ✅ FIX (medium #1): added check that addresses are not the same
+    // Treasury can be an EOA (wallet/multisig) so no code.length check is applied
     function setTreasury(address a) external onlyOwner {
         require(a != address(0), "treasury=0");
-        // ✅ FIX (low #1): provjera da nova adresa nije ista kao postojeća
+        // ✅ FIX (low #1): check that new address differs from the current one
         require(a != treasury, "Same address");
         treasury = a;
         emit RegistryUpdated("treasury", a, msg.sender);
     }
 
-    /// @notice Postavi GCD token contract adresu
+    /// @notice Set the GCD token contract address
     function setGcdToken(address a) external onlyOwner {
         require(a != address(0),      "gcd=0");
         require(a.code.length > 0,   "gcd not contract");
-        // ✅ FIX (medium #1): provjera da nije ista kao quadrantsNft ili staking
+        // ✅ FIX (medium #1): check that it does not collide with quadrantsNft or staking
         require(a != quadrantsNft,   "Same as quadrantsNft");
         require(a != staking,        "Same as staking");
-        // ✅ FIX (low #1): provjera da nova adresa nije ista kao postojeća
+        // ✅ FIX (low #1): check that new address differs from the current one
         require(a != gcdToken,       "Same address");
         gcdToken = a;
         emit RegistryUpdated("gcdToken", a, msg.sender);
     }
 
-    /// @notice Postavi GeoQuadrants NFT contract adresu
+    /// @notice Set the GeoQuadrants NFT contract address
     function setQuadrantsNft(address a) external onlyOwner {
         require(a != address(0),     "nft=0");
         require(a.code.length > 0,  "nft not contract");
-        // ✅ FIX (medium #1): provjera da nije ista kao gcdToken ili staking
+        // ✅ FIX (medium #1): check that it does not collide with gcdToken or staking
         require(a != gcdToken,      "Same as gcdToken");
         require(a != staking,       "Same as staking");
-        // ✅ FIX (low #1): provjera da nova adresa nije ista kao postojeća
+        // ✅ FIX (low #1): check that new address differs from the current one
         require(a != quadrantsNft,  "Same address");
         quadrantsNft = a;
         emit RegistryUpdated("quadrantsNft", a, msg.sender);
     }
 
-    /// @notice Postavi FfTStaking contract adresu
+    /// @notice Set the FfTStaking contract address
     function setStaking(address a) external onlyOwner {
         require(a != address(0),     "staking=0");
         require(a.code.length > 0,  "staking not contract");
-        // ✅ FIX (medium #1): provjera da nije ista kao gcdToken ili quadrantsNft
+        // ✅ FIX (medium #1): check that it does not collide with gcdToken or quadrantsNft
         require(a != gcdToken,      "Same as gcdToken");
         require(a != quadrantsNft,  "Same as quadrantsNft");
-        // ✅ FIX (low #1): provjera da nova adresa nije ista kao postojeća
+        // ✅ FIX (low #1): check that new address differs from the current one
         require(a != staking,       "Same address");
         staking = a;
         emit RegistryUpdated("staking", a, msg.sender);
@@ -78,10 +78,10 @@ contract FfTRegistry is Ownable2Step {
 
     // ── Getters ───────────────────────────────────────────────────────────────
 
-    /// @notice Vrati sve adrese u jednom pozivu — smanjuje broj RPC poziva
-    /// @dev web3Config.js može koristiti ovaj getter umjesto 4 zasebna poziva:
+    /// @notice Return all addresses in a single call — reduces RPC call count
+    /// @dev web3Config.js can use this getter instead of 4 separate calls:
     ///      const [gcd, nft, stk, trs] = await registry.getAllAddresses();
-    // ✅ FIX (medium #2): getAllAddresses() za efikasniji frontend pristup
+    // ✅ FIX (medium #2): getAllAddresses() for more efficient frontend access
     function getAllAddresses()
         external view
         returns (
@@ -94,8 +94,8 @@ contract FfTRegistry is Ownable2Step {
         return (gcdToken, quadrantsNft, staking, treasury);
     }
 
-    /// @notice Provjeri da li su sve adrese postavljene
-    /// @dev Korisno za health check pri deployu
+    /// @notice Check whether all addresses have been configured
+    /// @dev Useful for health check on deploy
     function isFullyConfigured() external view returns (bool) {
         return (
             gcdToken     != address(0) &&
