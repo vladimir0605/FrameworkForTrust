@@ -13,11 +13,11 @@ contract GeoChainData is ERC20, ERC20Capped, AccessControl, Ownable2Step, Pausab
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    // ✅ FIX (medium #1): BURN_ROLE za on-chain slash mehanizam
+    // ✅ FIX (medium #1): BURN_ROLE for the on-chain slash mechanism
     bytes32 public constant BURN_ROLE   = keccak256("BURN_ROLE");
 
     // ── Events ───────────────────────────────────────────────────────────────
-    // ✅ FIX (medium #2): custom event za audit trail nagrada
+    // ✅ FIX (medium #2): custom event for reward audit trail
     event ContributionRewarded(
         address indexed contributor,
         uint256 amount,
@@ -28,8 +28,8 @@ contract GeoChainData is ERC20, ERC20Capped, AccessControl, Ownable2Step, Pausab
     constructor(
         address initialOwner,
         address initialTreasury,
-        uint256 initialSupply,  // u najmanjim jedinicama (npr. 1_000_000e18)
-        uint256 capSupply       // u najmanjim jedinicama (npr. 2_000_000_000e18)
+        uint256 initialSupply,  // in smallest units (e.g. 1_000_000e18)
+        uint256 capSupply       // in smallest units (e.g. 2_000_000_000e18)
     )
         ERC20("GeoChainData", "GCD")
         ERC20Capped(capSupply)
@@ -42,8 +42,8 @@ contract GeoChainData is ERC20, ERC20Capped, AccessControl, Ownable2Step, Pausab
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(MINTER_ROLE,        initialOwner);
         _grantRole(PAUSER_ROLE,        initialOwner);
-        // ✅ FIX: BURN_ROLE se dodjeljuje initijalnom owneru
-        // Backend oracle wallet treba dobiti ovu ulogu eksplicitno:
+        // ✅ FIX: BURN_ROLE is granted to the initial owner
+        // The backend oracle wallet must be granted this role explicitly:
         // gcdToken.grantRole(BURN_ROLE, backendWallet)
         _grantRole(BURN_ROLE, initialOwner);
 
@@ -56,44 +56,44 @@ contract GeoChainData is ERC20, ERC20Capped, AccessControl, Ownable2Step, Pausab
 
     // ── Mint / Reward ─────────────────────────────────────────────────────────
 
-    /// @notice Mint tokena — samo MINTER_ROLE
-    /// @dev amount je u najmanjim jedinicama (wei-like), bez množenja sa decimals()
-    ///      Npr. za 5 GCD: amount = 5 * 10**18
+    /// @notice Mint tokens — MINTER_ROLE only
+    /// @dev amount is in smallest units (wei-like), without multiplying by decimals()
+    ///      e.g. for 5 GCD: amount = 5 * 10**18
     function mint(address to, uint256 amount)
         external
         onlyRole(MINTER_ROLE)
         whenNotPaused
     {
         require(to     != address(0), "to=0");
-        // ✅ FIX (high #2): provjera da amount nije nula
+        // ✅ FIX (high #2): check that amount is not zero
         require(amount > 0,           "amount=0");
         _mint(to, amount);
     }
 
-    /// @notice Nagradi kontributora — emituje ContributionRewarded event
-    /// @dev Semantički alias za mint, ali sa custom eventom za audit trail.
-    ///      amount je u najmanjim jedinicama (wei-like).
-    ///      Backend konverzija: amount_wei = int(gcd_amount * 10**18)
+    /// @notice Reward a contributor — emits ContributionRewarded event
+    /// @dev Semantic alias for mint, but with a custom event for audit trail.
+    ///      amount is in smallest units (wei-like).
+    ///      Backend conversion: amount_wei = int(gcd_amount * 10**18)
     function reward(address to, uint256 amount)
         external
         onlyRole(MINTER_ROLE)
         whenNotPaused
     {
         require(to     != address(0), "to=0");
-        // ✅ FIX (high #2): provjera da amount nije nula
+        // ✅ FIX (high #2): check that amount is not zero
         require(amount > 0,           "amount=0");
         _mint(to, amount);
-        // ✅ FIX (medium #2): emituj custom event sa kontekstom
+        // ✅ FIX (medium #2): emit custom event with context
         emit ContributionRewarded(to, amount, block.timestamp);
     }
 
     // ── Burn (slash) ──────────────────────────────────────────────────────────
 
-    /// @notice On-chain burn tokena za slash mehanizam — samo BURN_ROLE
-    /// @dev Poziva se od strane backend oracle-a kad je event označen fake/spam.
-    ///      Smanjuje ukupnu supply — deflatorni mehanizam.
-    ///      amount je u najmanjim jedinicama (wei-like).
-    // ✅ FIX (high #1): dodata burn funkcija za on-chain slash
+    /// @notice On-chain token burn for the slash mechanism — BURN_ROLE only
+    /// @dev Called by the backend oracle when an event is marked as fake/spam.
+    ///      Reduces total supply — deflationary mechanism.
+    ///      amount is in smallest units (wei-like).
+    // ✅ FIX (high #1): added burn function for on-chain slash
     function burn(address from, uint256 amount)
         external
         onlyRole(BURN_ROLE)
@@ -106,15 +106,15 @@ contract GeoChainData is ERC20, ERC20Capped, AccessControl, Ownable2Step, Pausab
 
     // ── Ownership & Role sync ─────────────────────────────────────────────────
 
-    /// @dev Automatski sinhronizuje role pri transferu vlasništva.
-    ///      Koristi Ownable2Step — transfer je dvostepeni (acceptOwnership).
-    // ✅ FIX (critical #2): dodata provjera oldOwner != newOwner
-    //    Sprečava slučajnu revokaciju rola ako oldOwner == newOwner
+    /// @dev Automatically synchronises roles on ownership transfer.
+    ///      Uses Ownable2Step — transfer is two-step (acceptOwnership).
+    // ✅ FIX (critical #2): added oldOwner != newOwner check
+    //    Prevents accidental role revocation if oldOwner == newOwner
     function _transferOwnership(address newOwner) internal override {
         address oldOwner = owner();
         super._transferOwnership(newOwner);
 
-        // Dodijeli role novom owneru
+        // Grant roles to the new owner
         if (newOwner != address(0)) {
             _grantRole(DEFAULT_ADMIN_ROLE, newOwner);
             _grantRole(MINTER_ROLE,        newOwner);
@@ -122,8 +122,9 @@ contract GeoChainData is ERC20, ERC20Capped, AccessControl, Ownable2Step, Pausab
             _grantRole(BURN_ROLE,          newOwner);
         }
 
-        // ✅ FIX: Revokuj role starom owneru SAMO ako je drugačiji od novog
-        // Bez ove provjere: ako oldOwner == newOwner, role se dodijele pa odmah revokuju
+        // ✅ FIX: Revoke roles from the old owner ONLY if different from new owner
+        // Without this check: if oldOwner == newOwner, roles are granted then
+        // immediately revoked
         if (oldOwner != address(0) && oldOwner != newOwner) {
             _revokeRole(BURN_ROLE,          oldOwner);
             _revokeRole(PAUSER_ROLE,        oldOwner);
@@ -134,16 +135,16 @@ contract GeoChainData is ERC20, ERC20Capped, AccessControl, Ownable2Step, Pausab
 
     // ── ERC20 hook ────────────────────────────────────────────────────────────
 
-    /// @dev OZ hook: enforce cap. Pause je sada samo na mint/reward/burn,
-    ///      NE na svim transferima — korisnici mogu transferovati i kad je pauziran mint.
-    // ✅ FIX (critical #1): uklonjen whenNotPaused iz _update
-    //    Razlog: whenNotPaused na _update blokira SVE transfere (uključujući
-    //    korisničke transfers i burns) kad je contract pauziran.
-    //    Pause sada blokira samo mint(), reward() i burn() — ne user transfere.
+    /// @dev OZ hook: enforces the cap. Pause now applies only to mint/reward/burn,
+    ///      NOT to all transfers — users can still transfer tokens when mint is paused.
+    // ✅ FIX (critical #1): removed whenNotPaused from _update
+    //    Reason: whenNotPaused on _update blocks ALL transfers (including
+    //    user transfers and burns) when the contract is paused.
+    //    Pause now blocks only mint(), reward() and burn() — not user transfers.
     function _update(address from, address to, uint256 value)
         internal
         override(ERC20, ERC20Capped)
-        // whenNotPaused  ← UKLONJENO
+        // whenNotPaused  ← REMOVED
     {
         super._update(from, to, value);
     }
