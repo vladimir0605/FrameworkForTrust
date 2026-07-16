@@ -87,7 +87,7 @@ const translations = {
       "Because the problem FfT solves isn't technical — it's trust: how do you know data about a place is true when no one can physically check every point on the planet? That's a question relevant to insurers, logistics, climate science, disaster management — in essence, relevant to everyone — and the solution being built here is one of the few attempts to solve it without relying on trust in a single institution.",
     faq_q13: "Where can I follow the project's development?",
     faq_a13:
-      "The code will be publicly available on GitHub, and a technical document (whitepaper) will explain the architecture in detail for those who want a deeper understanding. [Link will be added at launch.]",
+      "The code will be publicly available on GitHub, and a technical document (whitepaper) will explain the architecture in detail for those who want a deeper understanding.",
 
     repo_section_title: "About Framework for Trust – repo",
     repo_section_p1:
@@ -173,7 +173,7 @@ const translations = {
       "Zato što problem koji FfT rješava nije tehnički nego povjerenje: kako znati da su podaci o nekom mjestu istiniti, kada niko fizički ne može da provjeri svaku tačku na planeti. To je pitanje relevantno za osiguravajuće kuće, logistiku, nauku o klimi, upravljanje katastrofama, u osnovi je svima relevantno — a rješenje koje se ovdje gradi je jedan od malobrojnih pokušaja da se to riješi na način koji se ne oslanja na povjerenje u jednu instituciju.",
     faq_q13: "Gdje mogu pratiti razvoj projekta?",
     faq_a13:
-      "Kod će biti javno dostupan na GitHub-u, a tehnički dokument (whitepaper) će detaljno objasniti arhitekturu za one koji žele dublje razumijevanje. [Link će biti dodat pri objavi.]",
+      "Kod će biti javno dostupan na GitHub-u, a tehnički dokument (whitepaper) će detaljno objasniti arhitekturu za one koji žele dublje razumijevanje.",
 
     repo_section_title: "O Framework for Trust – repo",
     repo_section_p1:
@@ -260,7 +260,7 @@ const translations = {
       "Parce que le problème que résout FfT n'est pas technique, mais lié à la confiance : comment savoir que les données concernant un lieu sont vraies, quand personne ne peut physiquement vérifier chaque point de la planète ? C'est une question pertinente pour les assureurs, la logistique, les sciences du climat, la gestion des catastrophes — en somme, pertinente pour tout le monde — et la solution développée ici est l'une des rares tentatives de la résoudre sans dépendre de la confiance envers une seule institution.",
     faq_q13: "Où puis-je suivre l'avancement du projet ?",
     faq_a13:
-      "Le code sera disponible publiquement sur GitHub, et un document technique (whitepaper) expliquera l'architecture en détail pour ceux qui souhaitent aller plus loin. [Le lien sera ajouté au lancement.]",
+      "Le code sera disponible publiquement sur GitHub, et un document technique (whitepaper) expliquera l'architecture en détail pour ceux qui souhaitent aller plus loin.",
 
     repo_section_title: "À propos de Framework for Trust – dépôt",
     repo_section_p1:
@@ -346,7 +346,7 @@ const translations = {
       "Потому что проблема, которую решает FfT, не техническая, а связана с доверием: как узнать, что данные о каком-то месте достоверны, если физически невозможно проверить каждую точку планеты? Это вопрос, актуальный для страховых компаний, логистики, климатической науки, управления катастрофами — по сути, актуальный для всех — а решение, которое здесь создаётся, одна из немногих попыток решить его, не полагаясь на доверие к единственному институту.",
     faq_q13: "Где можно следить за развитием проекта?",
     faq_a13:
-      "Код будет публично доступен на GitHub, а технический документ (whitepaper) подробно объяснит архитектуру для тех, кто хочет разобраться глубже. [Ссылка будет добавлена при запуске.]",
+      "Код будет публично доступен на GitHub, а технический документ (whitepaper) подробно объяснит архитектуру для тех, кто хочет разобраться глубже.",
 
     repo_section_title: "О Framework for Trust – репозиторий",
     repo_section_p1:
@@ -432,7 +432,7 @@ const translations = {
       "Weil das Problem, das FfT löst, kein technisches ist, sondern eines des Vertrauens: Woher weiß man, dass Daten über einen Ort wahr sind, wenn niemand physisch jeden Punkt des Planeten überprüfen kann? Das ist eine Frage, die für Versicherer, Logistik, Klimawissenschaft, Katastrophenmanagement relevant ist — im Grunde für alle relevant — und die hier entwickelte Lösung ist einer der wenigen Versuche, das zu lösen, ohne sich auf das Vertrauen in eine einzelne Institution zu verlassen.",
     faq_q13: "Wo kann ich die Entwicklung des Projekts verfolgen?",
     faq_a13:
-      "Der Code wird öffentlich auf GitHub verfügbar sein, und ein technisches Dokument (Whitepaper) wird die Architektur für alle, die ein tieferes Verständnis wollen, ausführlich erklären. [Link wird beim Start hinzugefügt.]",
+      "Der Code wird öffentlich auf GitHub verfügbar sein, und ein technisches Dokument (Whitepaper) wird die Architektur für alle, die ein tieferes Verständnis wollen, ausführlich erklären.",
 
     repo_section_title: "Über Framework for Trust – Repository",
     repo_section_p1:
