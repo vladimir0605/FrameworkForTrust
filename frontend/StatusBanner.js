@@ -1,4 +1,4 @@
-// src/StatusBanner.js
+// frontend/StatusBanner.js
 import React, { useEffect, useState } from "react";
 
 const POLL_INTERVAL_MS = 30000; // 30s
