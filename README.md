@@ -1,7 +1,7 @@
 # FrameworkForTrust
 # Framework for Trust (FfT)
 
-> *A decentralized protocol for verifying and scoring real-world events — built on Polygon, powered by semantic AI, anchored to geography.*
+> *A decentralized protocol - tool for verifying and scoring real-world events — built on Polygon, powered by semantic AI, anchored to geography.*
 
 ---
 
