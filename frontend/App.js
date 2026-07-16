@@ -774,7 +774,7 @@ const translations = {
       "Porque o problema que o FfT resolve não é técnico, e sim de confiança: como saber que os dados sobre um lugar são verdadeiros, se ninguém consegue verificar fisicamente cada ponto do planeta? Essa é uma questão relevante para seguradoras, logística, ciência do clima, gestão de desastres — no fundo, relevante para todos — e a solução que está sendo construída aqui é uma das poucas tentativas de resolver isso sem depender da confiança em uma única instituição.",
     faq_q13: "Onde posso acompanhar o desenvolvimento do projeto?",
     faq_a13:
-      "O código estará disponível publicamente no GitHub, e um documento técnico (whitepaper) explicará a arquitetura em detalhes para quem quiser um entendimento mais profundo. ",
+      "O código estará disponível publicamente no GitHub, e um documento técnico (whitepaper) explicará a arquitetura em detalhes para quem quiser um entendimento mais profundo.",
 
     repo_section_title: "Sobre o Framework for Trust – repositório",
     repo_section_p1:
