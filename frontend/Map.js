@@ -1,4 +1,5 @@
 // src/Map.js
+// View map with NFT squares
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   MapContainer,
