@@ -10,13 +10,13 @@
 
 
 :root {
-  --ft-bg: #020617;       /* tamnije pozadinsko */
-  --ft-bg-alt: #020617;   /* sekundarna pozadina isto tamna */
+  --ft-bg: #020617;       /* darker background */
+  --ft-bg-alt: #020617;   /* secondary background, same dark tone */
   --ft-primary: #3b82f6;
   --ft-accent: #22c55e;
   --ft-text: #e5e7eb;
   --ft-muted: #9ca3af;
-  --ft-border: #0f172a;   /* malo tamnija ivica */
+  --ft-border: #0f172a;   /* slightly darker border */
   --ft-radius: 18px;
   --ft-max-width: 1120px;
 }
@@ -34,7 +34,7 @@ body {
   color: var(--ft-text);
 }
 
-/* LIGHT TEMA – override varijabli kad je class ft-theme-light na body */
+/* LIGHT THEME – variable overrides when ft-theme-light class is on body */
 
 body.ft-theme-light {
   --ft-bg: #f9fafb;
@@ -46,7 +46,7 @@ body.ft-theme-light {
   --ft-border: #d1d5db;
 }
 
-/* GLAVNI WRAPPER */
+/* MAIN WRAPPER */
 
 .ft-root {
   min-height: 100vh;
@@ -55,7 +55,7 @@ body.ft-theme-light {
     radial-gradient(circle at bottom, rgba(34, 197, 94, 0.25), transparent 55%);
 }
 
-/* lakši background za light temu */
+/* lighter background for light theme */
 
 body.ft-theme-light .ft-root {
   background:
@@ -81,7 +81,7 @@ body.ft-theme-light .ft-root {
 .ft-logo {
   width: 28px;
   height: 28px;
-  border-radius: 6px;        /* ili 0 ako ne želiš zaobljenje */
+  border-radius: 6px;        /* or 0 if no rounding desired */
   object-fit: contain;
 }
 
@@ -139,7 +139,7 @@ body.ft-theme-light .ft-nav-links button:hover {
   background: rgba(229, 231, 235, 0.9);
 }
 
-/* NAV – desna strana: tema + jezik */
+/* NAV – right side: theme toggle + language */
 
 .ft-nav-controls {
   display: flex;
@@ -181,7 +181,7 @@ body.ft-theme-light .ft-lang-switch select {
   background: #f9fafb;
 }
 
-/* LAYOUT MAIN */
+/* MAIN LAYOUT */
 
 main {
   max-width: var(--ft-max-width);
@@ -204,7 +204,7 @@ main {
   font-size: clamp(2.4rem, 3.7vw, 3.2rem);
   letter-spacing: 0.06em;
   margin: 0.2rem 0 0.6rem;
-  white-space: nowrap;  /* ne dozvoljava se prelom */
+  white-space: nowrap;  /* prevent line break */
 }
 
 .ft-tagline {
@@ -266,7 +266,7 @@ body.ft-theme-light .ft-hero-buttons button:last-child:hover {
   background: rgba(229, 231, 235, 0.9);
 }
 
-/* Hero vizuelni dio (desno) */
+/* Hero visual section (right side) */
 
 .ft-hero-visual {
   position: relative;
@@ -278,7 +278,7 @@ body.ft-theme-light .ft-hero-buttons button:last-child:hover {
 
 .ft-globe-container {
   position: relative;
-  z-index: 1;             /* bitno: iznad ::before aure */
+  z-index: 1;             /* important: above ::before glow */
   width: 260px;
   height: 260px;
   border-radius: 999px;
@@ -303,7 +303,7 @@ body.ft-theme-light .ft-hero-buttons button:last-child:hover {
   z-index: 0;
 }
 
-/* Glavna kartica za Kontrolu kvadranta (Sidebar) */
+/* Main card for quadrant controls (Sidebar) */
 
 .ft-dapp-controls-card {
   margin-top: 1.25rem;
@@ -341,7 +341,7 @@ body.ft-theme-light .ft-dapp-controls-card {
   color: var(--ft-muted);
 }
 
-/* Mapa */
+/* Map */
 .ft-map-layout {
   display: flex;
   gap: 1rem;
@@ -453,7 +453,7 @@ body.ft-theme-light .ft-map-frame {
   word-break: break-all;
 }
 
-/* Red sa dugmadi */
+/* Row with buttons */
 
 .ft-dapp-controls-row {
   display: flex;
@@ -462,7 +462,7 @@ body.ft-theme-light .ft-map-frame {
   margin-top: 0.4rem;
 }
 
-/* Dugmad – isti ton kao u walletu */
+/* Buttons – same tone as in wallet */
 
 .ft-dapp-btn-primary,
 .ft-dapp-btn-secondary {
@@ -474,7 +474,7 @@ body.ft-theme-light .ft-map-frame {
   transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-/* (ako budeš negdje koristio primarno dugme) */
+/* (if you use a primary button somewhere) */
 .ft-dapp-btn-primary {
   border-color: transparent;
   background: linear-gradient(135deg, var(--ft-primary), var(--ft-accent));
@@ -486,7 +486,7 @@ body.ft-theme-light .ft-map-frame {
   box-shadow: 0 10px 22px rgba(37, 99, 235, 0.6);
 }
 
-/* Sekundarno – “Osvježi kvadrate” */
+/* Secondary – “Reload quadrants” button */
 
 .ft-dapp-btn-secondary {
   background: rgba(15, 23, 42, 0.9);
@@ -507,7 +507,7 @@ body.ft-theme-light .ft-dapp-btn-secondary:hover {
 }
 
 
-/* SEKCIJE */
+/* SECTIONS */
 
 .ft-section {
   margin-top: 2.5rem;
@@ -517,7 +517,7 @@ body.ft-theme-light .ft-dapp-btn-secondary:hover {
   border: 1px solid rgba(15, 23, 42, 0.9);
 }
 
-/* Jače tamna pozadina sekcija u dark modu */
+/* Stronger dark background for sections in dark mode */
 body:not(.ft-theme-light) .ft-section {
   background: rgba(3, 7, 18, 0.96);
   border-color: #020617;
@@ -531,7 +531,7 @@ body:not(.ft-theme-light) .ft-map-frame {
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85);
 }
 
-/* Event kartica ispod mape */
+/* Event card below map */
 body:not(.ft-theme-light) .ft-event-card {
   background: rgba(3, 7, 18, 0.96);
   border-radius: 18px;
@@ -539,7 +539,7 @@ body:not(.ft-theme-light) .ft-event-card {
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
 }
 
-/* Wallet kartica u dark modu – malo tamnija unutra */
+/* Wallet card in dark mode – slightly darker inside */
 body:not(.ft-theme-light) .ft-wallet-card {
   background: radial-gradient(
     circle at top left,
@@ -640,7 +640,7 @@ body.ft-theme-light .ft-video-wrapper {
   height: 100%;
 }
 
-/* Omotač oko walleta + on-chain status panela */
+/* Wrapper around wallet + on-chain status panel */
 
 .ft-dapp-wallet {
   margin-top: 1.25rem;
@@ -650,7 +650,7 @@ body.ft-theme-light .ft-video-wrapper {
   align-items: flex-start;
 }
 
-/* GCDWallet je već u .ft-wallet-card – da se lepo rastegne */
+/* GCDWallet is already in .ft-wallet-card – stretches correctly */
 
 .ft-dapp-wallet .ft-wallet-card {
   flex: 2 1 260px;
@@ -658,15 +658,15 @@ body.ft-theme-light .ft-video-wrapper {
 }
 
 
-/* Karte za wallet – koristi se u GCDWallet root-u */
-/* Osnovna kartica za wallet (već smo je ranije definisali, možeš prepisati ili pojačati) */
+/* Wallet cards – used in GCDWallet root */
+/* Base wallet card (defined earlier, can be overridden or extended) */
 /* 🟣 Wallet kartica u dark modu */
 @media (prefers-color-scheme: dark) {
 .ft-wallet-card {
   margin-top: 1.5rem;
   padding: 1rem 1.25rem;
   border-radius: 0.75rem;
-  background: #141823;          /* ista tj. logična pozadina kao druge kartice */
+  background: #141823;          /* same logical background as other cards */
   border: 1px solid #283044;
   color: #f5f7ff;
 }
@@ -676,7 +676,7 @@ body.ft-theme-light .ft-wallet-card {
   box-shadow: 0 10px 25px rgba(148, 163, 184, 0.3);
 }
 
-/* Header: naslov + dugme za connect */
+/* Header: title + connect button */
 
 /* Header GCD Wallet kartice */
 .ft-wallet-header {
@@ -687,10 +687,10 @@ body.ft-theme-light .ft-wallet-card {
   margin-bottom: 0.75rem;
 }
 
-/* Natpis "GCD Wallet" da bude kao naslovi drugih panela */
+/* "GCD Wallet" heading styled like other panel headings */
 .ft-wallet-header h3 {
   margin: 0;
-  font-size: 1rem;        /* uskladi s drugim panelima ako koristiš 1rem ili 1.05rem */
+  font-size: 1rem;        /* align with other panels — use 1rem or 1.05rem */
   font-weight: 600;
 }
 
@@ -735,7 +735,7 @@ body.ft-theme-light .ft-wallet-card {
   }
 }
 
-/* Redovi (adresa/mreža, balans/događaji) */
+/* Rows (address/network, balance/events) */
 
 .ft-wallet-row {
   display: flex;
@@ -749,14 +749,14 @@ body.ft-theme-light .ft-wallet-card {
   min-width: 0;
 }
 
-/* Podnaslov "Geo Quadrant Credits" – isti stil kao opisi u drugim karticama */
+/* Subtitle "Geo Quadrant Credits" – same style as descriptions in other cards */
 .ft-wallet-label {
   margin: 0.15rem 0 0;
   font-size: 0.8rem;
   opacity: 0.8;
 }
 
-  /* Ključni brojevi/tekst – da budu “jaki” */
+  /* Key numbers/text – make them stand out */
   .ft-wallet-address,
   .ft-wallet-network,
   .ft-wallet-balance,
@@ -846,7 +846,7 @@ body.ft-theme-light .ft-wallet-input {
     background: rgba(15, 23, 42, 0.9);
   }
 
-  /* GCD off-chain saldo i današnje nagrade */
+  /* GCD off-chain balance and today's rewards */
   .gcdwallet-row {
     display: flex;
     justify-content: space-between;
@@ -865,12 +865,12 @@ body.ft-theme-light .ft-wallet-input {
   }
 
   .gcdwallet-status.gcdwallet-status-secondary {
-    color: #a5b4fc; /* svijetlo ljubičasta hints */
+    color: #a5b4fc; /* light purple hints */
   }
 
-/* Dodatne informacije pored wallet-a */
+/* Additional info beside the wallet */
 
-/* Kartica za On-chain status */
+/* On-chain status card */
 
 .ft-dapp-wallet-hint {
   flex: 1.3 1 220px;
@@ -893,7 +893,7 @@ body.ft-theme-light .ft-dapp-wallet-hint {
   box-shadow: 0 8px 20px rgba(148, 163, 184, 0.35);
 }
 
-/* Naslov i sadržaj */
+/* Title and content */
 
 .ft-dapp-wallet-hint h3 {
   margin: 0;
@@ -991,7 +991,7 @@ body.ft-theme-light .ft-footer {
 
 @media (max-width: 480px) {
   .ft-hero h1 {
-    white-space: normal;      /* dozvoli prelom na ultra uskim ekranima */
+    white-space: normal;      /* allow wrapping on very narrow screens */
     font-size: 2.1rem;
     text-align: center;
   }
@@ -1008,13 +1008,13 @@ body.ft-theme-light .ft-footer {
   }
 }
 
-/* RTL specifična podešavanja (za arapski) */
+/* RTL-specific settings (for Arabic) */
 
 .ft-rtl {
   direction: rtl;
 }
 
-/* Navigacija – brand i linkovi desno, ali kontrole (tema/jezik) ostaju desno po smislu */
+/* Navigation – brand and links on right, controls (theme/language) stay right by convention */
 .ft-rtl .ft-nav {
   flex-direction: row-reverse;
 }
@@ -1027,7 +1027,7 @@ body.ft-theme-light .ft-footer {
   flex-direction: row-reverse;
 }
 
-/* Hero – tekst poravnan desno, globus sada na lijevoj strani na većim ekranima */
+/* Hero – text aligned right, globe now on left side on larger screens */
 
 .ft-rtl .ft-hero {
   grid-template-columns: minmax(0, 2.2fr) minmax(0, 3fr);
@@ -1051,13 +1051,13 @@ body.ft-theme-light .ft-footer {
 }
 
 
-/* Sekcije (project, whitepaper, FAQ) – desno poravnanje teksta */
+/* Sections (project, whitepaper, FAQ) – right-align text */
 
 .ft-rtl .ft-section {
   text-align: right;
 }
 
-/* dApp layout – zadrži mapu gore, wallet ispod, ali tekst desno poravnat */
+/* dApp layout – keep map on top, wallet below, text right-aligned */
 
 .ft-rtl .ft-dapp-wallet,
 .ft-rtl .ft-dapp-wallet-hint,
@@ -1065,7 +1065,7 @@ body.ft-theme-light .ft-footer {
   text-align: right;
 }
 
-/* U RTL modu, liste i label-e često je ljepše malo gurnuti s desne strane */
+/* In RTL mode, lists and labels are often better nudged from the right */
 
 .ft-rtl .ft-dapp-wallet-hint ul {
   padding-right: 1.1rem;
@@ -1088,12 +1088,12 @@ body.ft-theme-light .ft-footer {
 }
 
 .ft-coordinate-label {
-  min-width: 42px;         /* da "Lat:" i "Lon:" budu lijepo poravnati */
+  min-width: 42px;         /* so "Lat:" and "Lon:" are nicely aligned */
   color: var(--ft-muted);
 }
 
 
-/*Prolagodjenje za evente */
+/* Event-specific adjustments */
 .ft-event-card {
   margin-top: 1rem;
   padding: 0.9rem 1rem;
@@ -1147,7 +1147,7 @@ body.ft-theme-light .ft-event-card {
 }
 
  
-/* korekcija formata za istoriju */
+/* format correction for event history */
 .ft-event-history {
   margin-top: 0.8rem;
   border-top: 1px solid var(--ft-border);
@@ -1244,7 +1244,7 @@ body.ft-theme-light .ft-dapp-btn-secondary:hover:enabled {
 }
 
 
-/* Fullscreen overlay preko cijelog ekrana */
+/* Fullscreen overlay covering the entire screen */
 .ft-update-overlay {
   position: fixed;
   inset: 0; /* top/right/bottom/left: 0 */
@@ -1255,7 +1255,7 @@ body.ft-theme-light .ft-dapp-btn-secondary:hover:enabled {
   z-index: 1500; /* iznad mape, navbara itd. */
 }
 
-/* Kartica modala centrirana iznad mape/stranice */
+/* Modal card centred above map/page */
 .ft-update-modal {
   background: var(--ft-bg-alt);
   border-radius: 18px;
@@ -1265,7 +1265,7 @@ body.ft-theme-light .ft-dapp-btn-secondary:hover:enabled {
   border: 1px solid var(--ft-border);
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.8);
   color: var(--ft-text);
-  outline: none; /* da nema plavi okvir */
+  outline: none; /* remove blue outline */
 }
 
 /* Light tema varijanta */
@@ -1274,7 +1274,7 @@ body.ft-theme-light .ft-update-modal {
   box-shadow: 0 20px 60px rgba(148, 163, 184, 0.5);
 }
 
-/* Malo ušminkavanja forme u modalu – koristi tvoju postojeću strukturu */
+/* Light form styling in modal – uses your existing structure */
 
 .ft-update-modal form label {
   display: block;
@@ -1299,7 +1299,7 @@ body.ft-theme-light .ft-update-modal select {
   background: #f9fafb;
 }
 
-/* Red sa dugmadima (već koristiš className="modal-buttons") */
+/* Button row (uses className="modal-buttons") */
 
 .modal-buttons {
   margin-top: 1.2rem;
@@ -1316,7 +1316,7 @@ body.ft-theme-light .ft-update-modal select {
   border: 1px solid transparent;
 }
 
-/* Primarno dugme (Sačuvaj) – gradient kao ostali primary btni */
+/* Primary button (Save) – gradient matching other primary buttons */
 .modal-buttons button[type="submit"] {
   background: linear-gradient(135deg, var(--ft-primary), var(--ft-accent));
   color: #ffffff;
@@ -1328,7 +1328,7 @@ body.ft-theme-light .ft-update-modal select {
   box-shadow: 0 14px 32px rgba(37, 99, 235, 0.7);
 }
 
-/* Sekundarno dugme (Otkaži) – sivo */
+/* Secondary button (Cancel) – grey */
 .cancel-button {
   background: transparent;
   border-color: var(--ft-border);
@@ -1344,7 +1344,7 @@ body.ft-theme-light .cancel-button:hover {
 }
 
 
-/* ===== Modal (UpdateMetadata) – overlay + sadržaj ===== */
+/* ===== Modal (UpdateMetadata) – overlay + content ===== */
 
 .modal-overlay {
   position: fixed;
@@ -1462,15 +1462,15 @@ body.ft-theme-light .modal-content select {
 }
 
 .status-dot-ok {
-  background: #19c37d; /* zelena */
+  background: #19c37d; /* green */
 }
 
 .status-dot-degraded {
-  background: #f5a623; /* žuta/narandžasta */
+  background: #f5a623; /* yellow/orange */
 }
 
 .status-dot-error {
-  background: #ff4b4b; /* crvena */
+  background: #ff4b4b; /* red */
 }
 
 .status-main-text {
@@ -1643,7 +1643,7 @@ body.ft-theme-light .modal-content select {
 /* 🌙 Globalni dark mode touch-up */
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #020617; /* malo tamnije od #0f172a, ali ne crna rupa */
+    background-color: #020617; /* slightly darker than #0f172a, but not a black hole */
     color: #e5e7eb;           /* svijetlo sivo */
   }
 
@@ -1749,7 +1749,7 @@ body.ft-theme-light .modal-content select {
   margin-top: 1.5rem;
   padding: 1rem 1.25rem;
   border-radius: 0.75rem;
-  background: #141823;          /* blago tamnija pozadina, kao ostale kartice */
+  background: #141823;          /* slightly darker background, matching other cards */
   border: 1px solid #283044;    /* tanka obrub-linija */
   color: #f5f7ff;
 }
@@ -1783,7 +1783,7 @@ body.ft-theme-light .modal-content select {
   flex: 1;
 }
 
-/* Input polje */
+/* Input field */
 .ft-quadrant-meta-input {
   padding: 0.35rem 0.5rem;
   border-radius: 0.4rem;
@@ -1860,7 +1860,7 @@ body.ft-theme-light .modal-content select {
   opacity: 0.7;
 }
 
-/* (opciono) poruke o grešci / uspjehu ako ih imaš u komponenti */
+/* (optional) error / success messages if present in the component */
 .ft-quadrant-meta-error {
   margin-top: 0.25rem;
   font-size: 0.85rem;
@@ -1963,7 +1963,7 @@ body.ft-theme-light .modal-content select {
   align-items: center;
   gap: 0.35rem;
 
-  color: #fbbf24;          /* jasna žuta, po potrebi izmejniti  */
+  color: #fbbf24;          /* clear yellow, adjust as needed */
   border-bottom: 1px solid #4b5563;
   padding-bottom: 4px;
   margin-bottom: 0.5rem;
@@ -2001,7 +2001,7 @@ body.ft-theme-light .modal-content select {
 
 
 
-/* === ISTAKNUTI NASLOVI SEKCIJA (Project, Whitepaper, Repo, Map dApp, FAQ) === */
+/* === SECTION HEADINGS (Project, Whitepaper, Repo, Map dApp, FAQ) === */
 
 .ft-section h2.ft-section-title {
   margin-top: 0;
@@ -2012,7 +2012,7 @@ body.ft-theme-light .modal-content select {
   text-transform: none;
 }
 
-/* Malo jača boja naslova u oba moda */
+/* Slightly stronger heading colour in both modes */
 body:not(.ft-theme-light) .ft-section h2.ft-section-title {
   color: #e5e7eb;
 }
@@ -2027,13 +2027,13 @@ body.ft-theme-light .ft-section h2.ft-section-title {
   font-weight: 700;
 }
 
-/* Jači naslov za FAQ blokove */
+/* Stronger heading for FAQ blocks */
 #faq .ft-faq-item h3 {
   font-size: 1.1rem;
   font-weight: 600;
 }
 
-/* Intro video naslov da bude upadljiviji */
+/* Intro video title — more prominent */
 .ft-video-section .ft-video-title {
   font-size: 1.2rem;
   font-weight: 600;
@@ -2047,9 +2047,9 @@ body.ft-theme-light .ft-section h2.ft-section-title {
   margin-top: 0.75rem;
   padding: 0.75rem 0.9rem;
   border-radius: 10px;
-  background: rgba(15, 23, 42, 0.9); /* tamna podloga */
+  background: rgba(15, 23, 42, 0.9); /* dark background */
   border: 1px solid rgba(148, 163, 184, 0.35);
-  color: #e5e7eb; /* svijetli tekst */
+  color: #e5e7eb; /* light text */
   font-size: 0.92rem;
   line-height: 1.4;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
@@ -2069,14 +2069,14 @@ body.ft-theme-light .ft-section h2.ft-section-title {
 }
 
 .ft-selection-info-label {
-  color: #93c5fd; /* blago plava */
+  color: #93c5fd; /* light blue */
   font-weight: 600;
   margin-right: 0.25rem;
 }
 
 .ft-selection-info-value {
   color: #f8fafc;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; /* za koordinate/ID */
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; /* for coordinates/ID */
   font-size: 0.88rem;
 }
 
@@ -2116,7 +2116,7 @@ body.ft-theme-light .ft-section h2.ft-section-title {
   margin-bottom: 12px;
 }
 
-/* Wrapper za svako input polje */
+/* Wrapper for each input field */
 .ft-reward-field {
   display: flex;
   flex-direction: column;
@@ -2124,14 +2124,14 @@ body.ft-theme-light .ft-section h2.ft-section-title {
   margin-bottom: 12px;
 }
 
-/* Labela iznad inputa */
+/* Label above input */
 .ft-reward-label {
   font-size: 12px;
   color: var(--color-text-secondary, #94a3b8);
   font-weight: 500;
 }
 
-/* Prikaz wallet adrese pošiljaoca */
+/* Sender wallet address display */
 .ft-reward-sender {
   font-size: 12px;
   color: var(--color-text-secondary, #94a3b8);
@@ -2146,7 +2146,7 @@ body.ft-theme-light .ft-section h2.ft-section-title {
   color: var(--color-text-primary, #e5e7eb);
 }
 
-/* Poruka kad wallet nije konektovan */
+/* Message when wallet is not connected */
 .ft-reward-no-wallet {
   padding: 12px;
   background: var(--color-background-secondary, #0f172a);
@@ -2164,15 +2164,15 @@ body.ft-theme-light .ft-section h2.ft-section-title {
 
 
 .ft-status-success {
-  color: #22c55e;  /* zelena */
+  color: #22c55e;  /* green */
 }
 
 .ft-status-error {
-  color: #ef4444;  /* crvena */
+  color: #ef4444;  /* red */
 }
 
 .ft-status-warning {
-  color: #f59e0b;  /* žuta */
+  color: #f59e0b;  /* yellow */
 }
 
 
@@ -2198,7 +2198,7 @@ body.ft-theme-light .ft-section h2.ft-section-title {
    UpdateMetadata modal
 ───────────────────────────────────── */
 
-/* Loading poruka */
+/* Loading message */
 .ft-modal-loading {
   font-size: 0.85rem;
   color: var(--color-text-secondary, #94a3b8);
@@ -2206,7 +2206,7 @@ body.ft-theme-light .ft-section h2.ft-section-title {
   font-style: italic;
 }
 
-/* CID info blok */
+/* CID info block */
 .ft-modal-cid-info {
   font-size: 0.8rem;
   color: var(--color-text-secondary, #94a3b8);
@@ -2217,7 +2217,7 @@ body.ft-theme-light .ft-section h2.ft-section-title {
   line-height: 1.6;
 }
 
-/* CID kod */
+/* CID code */
 .ft-modal-cid-code {
   font-family: monospace;
   font-size: 0.75rem;
@@ -2238,7 +2238,7 @@ body.ft-theme-light .ft-section h2.ft-section-title {
   text-decoration: underline;
 }
 
-/* Uspješna poruka — zelena */
+/* Success message — green */
 .ft-modal-success {
   font-size: 13px;
   font-weight: 600;
@@ -2250,7 +2250,7 @@ body.ft-theme-light .ft-section h2.ft-section-title {
   border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
-/* Wallet info u modalu */
+/* Wallet info in modal */
 .ft-modal-wallet-info {
   font-size: 12px;
   color: var(--color-text-secondary, #94a3b8);
@@ -2292,7 +2292,7 @@ body.ft-theme-light .ft-section h2.ft-section-title {
 
 
 
-/* === Testnet faucet (add to App.css) === */
+/* === Testnet faucet === */
 
 .ft-faucet-card {
   border: 1px dashed #f59e0b;
