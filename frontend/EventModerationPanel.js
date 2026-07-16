@@ -1,4 +1,4 @@
-// src/EventModerationPanel.js
+// frontend/EventModerationPanel.js
 import React, { useState } from "react";
 import { useWallet } from "./WalletContext";
 
