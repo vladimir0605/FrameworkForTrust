@@ -1,4 +1,4 @@
-// src/App.js
+// frontend/App.js
 // Main component of application
 import React, { useState, useEffect } from "react";
 import MapComponent from "./Map";
