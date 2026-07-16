@@ -1,3 +1,5 @@
+// a bridge between application, wallet and smart contracts on Polygon network
+
 import { ethers, Contract } from "ethers";
 
 /* ABI files (/src/abi/*.json) */
