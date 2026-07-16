@@ -1,12 +1,10 @@
 import { ethers, Contract } from "ethers";
-// import { Contract } from "ethers";
 
 /* ABI files (/src/abi/*.json) */
 import REGISTRY_ABI from "./abi/FfTRegistry.json";
 import STAKING_ABI from "./abi/FfTStaking.json";
 import GCD_ABI from "./abi/GeoChainData.json";
 import GQ_ABI from "./abi/GeoQuadrants.json";
-
 
 // Debug env visibility (optional)
 // console.log(process.env.REACT_APP_API_BASE);
