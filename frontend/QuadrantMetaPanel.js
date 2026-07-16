@@ -1,4 +1,4 @@
-// src/QuadrantMetaPanel.js
+// frontend/QuadrantMetaPanel.js
 import React, { useState, useRef, useEffect } from "react";
 import { useWallet } from "./WalletContext";
 

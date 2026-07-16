@@ -1,4 +1,5 @@
-// src/Legend.js
+// frontend/Legend.js
+// color display - design
 import React from "react";
 
 const EventLegend = () => {

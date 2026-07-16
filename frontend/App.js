@@ -1,4 +1,5 @@
-// src/App.js
+// frontend/App.js
+// Main component of application
 import React, { useState, useEffect } from "react";
 import MapComponent from "./Map";
 import GCDWallet from "./GCDWallet";
@@ -86,7 +87,7 @@ const translations = {
       "Because the problem FfT solves isn't technical — it's trust: how do you know data about a place is true when no one can physically check every point on the planet? That's a question relevant to insurers, logistics, climate science, disaster management — in essence, relevant to everyone — and the solution being built here is one of the few attempts to solve it without relying on trust in a single institution.",
     faq_q13: "Where can I follow the project's development?",
     faq_a13:
-      "The code will be publicly available on GitHub, and a technical document (whitepaper) will explain the architecture in detail for those who want a deeper understanding. [Link will be added at launch.]",
+      "The code will be publicly available on GitHub, and a technical document (whitepaper) will explain the architecture in detail for those who want a deeper understanding.",
 
     repo_section_title: "About Framework for Trust – repo",
     repo_section_p1:
@@ -172,7 +173,7 @@ const translations = {
       "Zato što problem koji FfT rješava nije tehnički nego povjerenje: kako znati da su podaci o nekom mjestu istiniti, kada niko fizički ne može da provjeri svaku tačku na planeti. To je pitanje relevantno za osiguravajuće kuće, logistiku, nauku o klimi, upravljanje katastrofama, u osnovi je svima relevantno — a rješenje koje se ovdje gradi je jedan od malobrojnih pokušaja da se to riješi na način koji se ne oslanja na povjerenje u jednu instituciju.",
     faq_q13: "Gdje mogu pratiti razvoj projekta?",
     faq_a13:
-      "Kod će biti javno dostupan na GitHub-u, a tehnički dokument (whitepaper) će detaljno objasniti arhitekturu za one koji žele dublje razumijevanje. [Link će biti dodat pri objavi.]",
+      "Kod će biti javno dostupan na GitHub-u, a tehnički dokument (whitepaper) će detaljno objasniti arhitekturu za one koji žele dublje razumijevanje.",
 
     repo_section_title: "O Framework for Trust – repo",
     repo_section_p1:
@@ -259,7 +260,7 @@ const translations = {
       "Parce que le problème que résout FfT n'est pas technique, mais lié à la confiance : comment savoir que les données concernant un lieu sont vraies, quand personne ne peut physiquement vérifier chaque point de la planète ? C'est une question pertinente pour les assureurs, la logistique, les sciences du climat, la gestion des catastrophes — en somme, pertinente pour tout le monde — et la solution développée ici est l'une des rares tentatives de la résoudre sans dépendre de la confiance envers une seule institution.",
     faq_q13: "Où puis-je suivre l'avancement du projet ?",
     faq_a13:
-      "Le code sera disponible publiquement sur GitHub, et un document technique (whitepaper) expliquera l'architecture en détail pour ceux qui souhaitent aller plus loin. [Le lien sera ajouté au lancement.]",
+      "Le code sera disponible publiquement sur GitHub, et un document technique (whitepaper) expliquera l'architecture en détail pour ceux qui souhaitent aller plus loin.",
 
     repo_section_title: "À propos de Framework for Trust – dépôt",
     repo_section_p1:
@@ -345,7 +346,7 @@ const translations = {
       "Потому что проблема, которую решает FfT, не техническая, а связана с доверием: как узнать, что данные о каком-то месте достоверны, если физически невозможно проверить каждую точку планеты? Это вопрос, актуальный для страховых компаний, логистики, климатической науки, управления катастрофами — по сути, актуальный для всех — а решение, которое здесь создаётся, одна из немногих попыток решить его, не полагаясь на доверие к единственному институту.",
     faq_q13: "Где можно следить за развитием проекта?",
     faq_a13:
-      "Код будет публично доступен на GitHub, а технический документ (whitepaper) подробно объяснит архитектуру для тех, кто хочет разобраться глубже. [Ссылка будет добавлена при запуске.]",
+      "Код будет публично доступен на GitHub, а технический документ (whitepaper) подробно объяснит архитектуру для тех, кто хочет разобраться глубже.",
 
     repo_section_title: "О Framework for Trust – репозиторий",
     repo_section_p1:
@@ -431,7 +432,7 @@ const translations = {
       "Weil das Problem, das FfT löst, kein technisches ist, sondern eines des Vertrauens: Woher weiß man, dass Daten über einen Ort wahr sind, wenn niemand physisch jeden Punkt des Planeten überprüfen kann? Das ist eine Frage, die für Versicherer, Logistik, Klimawissenschaft, Katastrophenmanagement relevant ist — im Grunde für alle relevant — und die hier entwickelte Lösung ist einer der wenigen Versuche, das zu lösen, ohne sich auf das Vertrauen in eine einzelne Institution zu verlassen.",
     faq_q13: "Wo kann ich die Entwicklung des Projekts verfolgen?",
     faq_a13:
-      "Der Code wird öffentlich auf GitHub verfügbar sein, und ein technisches Dokument (Whitepaper) wird die Architektur für alle, die ein tieferes Verständnis wollen, ausführlich erklären. [Link wird beim Start hinzugefügt.]",
+      "Der Code wird öffentlich auf GitHub verfügbar sein, und ein technisches Dokument (Whitepaper) wird die Architektur für alle, die ein tieferes Verständnis wollen, ausführlich erklären.",
 
     repo_section_title: "Über Framework for Trust – Repository",
     repo_section_p1:
@@ -515,7 +516,7 @@ const translations = {
       "因为 FfT 解决的问题本质上不是技术问题，而是信任问题：当没有人能亲自核实地球上的每一个地点时，如何知道关于某地的数据是真实的？这个问题与保险公司、物流、气候科学、灾害管理密切相关——本质上与每个人都相关——而这里构建的方案，是少数几个不依赖对单一机构信任、尝试解决这一问题的努力之一。",
     faq_q13: "我在哪里可以关注项目的进展？",
     faq_a13:
-      "代码将在 GitHub 上公开发布，技术文档（白皮书）将为希望深入了解的人详细解释系统架构。【链接将在发布时添加。】",
+      "代码将在 GitHub 上公开发布，技术文档（白皮书）将为希望深入了解的人详细解释系统架构。",
 
     repo_section_title: "关于 Framework for Trust – 仓库",
     repo_section_p1:
@@ -601,7 +602,7 @@ const translations = {
       "لأن المشكلة التي يحلّها Framework for Trust ليست تقنية، بل مسألة ثقة: كيف نعرف أن البيانات المتعلقة بمكان ما صحيحة، بينما لا يمكن لأحد التحقق فعلياً من كل نقطة على الكوكب؟ هذا سؤال يهمّ شركات التأمين، اللوجستيات، علوم المناخ، إدارة الكوارث — وهو في جوهره يهمّ الجميع — والحل الذي يُبنى هنا هو من المحاولات القليلة لحل هذه المشكلة دون الاعتماد على الثقة بمؤسسة واحدة.",
     faq_q13: "أين يمكنني متابعة تطور المشروع؟",
     faq_a13:
-      "سيكون الكود متاحاً للجميع على GitHub، وستشرح وثيقة تقنية (الورقة البيضاء) البنية بالتفصيل لمن يريد فهماً أعمق. [سيُضاف الرابط عند الإطلاق.]",
+      "سيكون الكود متاحاً للجميع على GitHub، وستشرح وثيقة تقنية (الورقة البيضاء) البنية بالتفصيل لمن يريد فهماً أعمق.",
 
     repo_section_title: "حول Framework for Trust – المستودع",
     repo_section_p1:
@@ -687,7 +688,7 @@ const translations = {
       "Porque el problema que resuelve FfT no es técnico, sino de confianza: ¿cómo saber que los datos sobre un lugar son ciertos, si nadie puede verificar físicamente cada punto del planeta? Es una cuestión relevante para aseguradoras, logística, ciencia del clima, gestión de desastres —en el fondo, relevante para todos— y la solución que se está construyendo aquí es uno de los pocos intentos de resolverlo sin depender de la confianza en una única institución.",
     faq_q13: "¿Dónde puedo seguir el desarrollo del proyecto?",
     faq_a13:
-      "El código estará disponible públicamente en GitHub, y un documento técnico (whitepaper) explicará la arquitectura en detalle para quienes quieran profundizar. [El enlace se añadirá en el lanzamiento.]",
+      "El código estará disponible públicamente en GitHub, y un documento técnico (whitepaper) explicará la arquitectura en detalle para quienes quieran profundizar.",
 
     repo_section_title: "Acerca de Framework for Trust – repositorio",
     repo_section_p1:
@@ -773,7 +774,7 @@ const translations = {
       "Porque o problema que o FfT resolve não é técnico, e sim de confiança: como saber que os dados sobre um lugar são verdadeiros, se ninguém consegue verificar fisicamente cada ponto do planeta? Essa é uma questão relevante para seguradoras, logística, ciência do clima, gestão de desastres — no fundo, relevante para todos — e a solução que está sendo construída aqui é uma das poucas tentativas de resolver isso sem depender da confiança em uma única instituição.",
     faq_q13: "Onde posso acompanhar o desenvolvimento do projeto?",
     faq_a13:
-      "O código estará disponível publicamente no GitHub, e um documento técnico (whitepaper) explicará a arquitetura em detalhes para quem quiser um entendimento mais profundo. [O link será adicionado no lançamento.]",
+      "O código estará disponível publicamente no GitHub, e um documento técnico (whitepaper) explicará a arquitetura em detalhes para quem quiser um entendimento mais profundo.",
 
     repo_section_title: "Sobre o Framework for Trust – repositório",
     repo_section_p1:
@@ -858,7 +859,7 @@ const translations = {
       "Ker problem, ki ga rešuje FfT, ni tehničen, temveč je vprašanje zaupanja: kako vedeti, da so podatki o nekem kraju resnični, če nihče fizično ne more preveriti vsake točke na planetu? To je vprašanje, relevantno za zavarovalnice, logistiko, klimatologijo, upravljanje s katastrofami — v osnovi relevantno za vse — rešitev, ki nastaja tukaj, pa je eden redkih poskusov to rešiti brez zanašanja na zaupanje v eno samo institucijo.",
     faq_q13: "Kje lahko spremljam razvoj projekta?",
     faq_a13:
-      "Koda bo javno dostopna na GitHubu, tehnični dokument (whitepaper) pa bo podrobno pojasnil arhitekturo za tiste, ki želijo globlje razumevanje. [Povezava bo dodana ob objavi.]",
+      "Koda bo javno dostopna na GitHubu, tehnični dokument (whitepaper) pa bo podrobno pojasnil arhitekturo za tiste, ki želijo globlje razumevanje.",
 
     repo_section_title: "O Framework for Trust – repozitorij",
     repo_section_p1:
@@ -973,7 +974,7 @@ function RepoSection({ t }) {
         </p>
 
         <a
-          href="https://github.com/your-org/framework-for-trust" // placeholder, replace with the real repo link before launch
+          href="https://github.com/vladimir0605/FrameworkForTrust" // the real repo
           target="_blank"
           rel="noreferrer"
           className="ft-dapp-link"

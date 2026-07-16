@@ -1,4 +1,4 @@
-// src/QuadrantInfoPanel.js
+// frontend/QuadrantInfoPanel.js
 import React, { useState, useRef, useEffect } from "react";
 
 // Staro - vracaj ak novo ne bude radilo:

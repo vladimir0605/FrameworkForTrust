@@ -1,3 +1,4 @@
+// wallet address, search by coordinates
 import React from "react";
 import CoordinateSearch from "./CoordinateSearch";
 import { useWallet } from "./WalletContext"; 
