@@ -283,7 +283,7 @@ If you want to contribute code, please open a pull request with a clear descript
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+AGPLv3 License — see [LICENSE](LICENSE) for details.
 
 ---
 
