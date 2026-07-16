@@ -7,7 +7,6 @@ import  { debugQuadrantData,getQuadrantData } from "./web3Config";
 import { WalletProvider } from "./WalletContext"; // ✅
 
 
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -25,10 +24,10 @@ reportWebVitals();
 
 // debugQuadrantData(1);
 
-// Za DEBUGGING - ukloniti prije produkcije:
+// For DEBUGGING:
 window.getQuadrantData = getQuadrantData;
 
-// Moze se postaviti umjesto gornje window.get.. linije:
+// In production instead of above window.get.. line:
 //if (process.env.NODE_ENV === 'development') {
   //window.getQuadrantData = getQuadrantData;
 //}
