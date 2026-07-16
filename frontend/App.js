@@ -974,7 +974,7 @@ function RepoSection({ t }) {
         </p>
 
         <a
-          href="https://github.com/your-org/framework-for-trust" // placeholder, replace with the real repo link before launch
+          href="https://github.com/vladimir0605/FrameworkForTrust" // the real repo
           target="_blank"
           rel="noreferrer"
           className="ft-dapp-link"
