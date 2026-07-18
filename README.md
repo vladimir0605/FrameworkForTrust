@@ -22,7 +22,7 @@ FfT takes a different approach: **let the community verify itself, with cryptogr
 Framework for Trust is a **DePIN** (Decentralized Physical Infrastructure Network) that connects the physical world to the blockchain through geo-anchored trust scores.
 
 In plain language:
-- Anyone can report a real-world event (flood, accident, outage, etc.)
+- Anyone or anything (e.g. sensor) can report a real-world event (flood, accident, outage, etc.)
 - The system scores that event based on who reported it, what they've staked, and how similar events cluster nearby
 - Verified contributors earn **GCD tokens** (GeoChainData) on-chain
 - Bad actors lose their stake
