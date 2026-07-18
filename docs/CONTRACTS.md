@@ -26,7 +26,7 @@ ERC-20-based reputation token issued under a Proof-of-Contribution model. GCD is
 
 ### `GeoQuadrants`
 
-ERC-721 contract representing land divided into 10°×10° geographic quadrants (L0 grid). Supports bulk minting (`batchMintQuadrants()`) and a dedicated special mint for the South Pole (`mintSouthPole()`). North Pole minting is currently pending.
+ERC-721 contract representing land divided into 10°×10° geographic quadrants (L0 grid). Supports bulk minting (`batchMintQuadrants()`) and a dedicated special mint for the South Pole (`mintSouthPole()`) and the North Pole (`mintNorthPole()`).
 
 ### `FfTRegistry`
 
