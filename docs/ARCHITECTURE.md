@@ -31,7 +31,7 @@ The project has been in active development for over a year and a half.
 
 ### 1. Geographic Scarcity — `GeoQuadrants` (NFT)
 
-The Earth's land surface is divided into a 10°×10° grid (L0 quadrants), each minted as an ERC-721 NFT. Ownership/stewardship of a quadrant is a prerequisite for certain contribution and moderation actions tied to that geography. Roughly 325 land-only quadrants have been minted, plus a dedicated South Pole NFT (with custom Leaflet rendering — Web Mercator latitude clamped to ±85.05° with a polar cap overlay).
+The Earth's land surface is divided into a 10°×10° grid (L0 quadrants), each minted as an ERC-721 NFT. Ownership/stewardship of a quadrant is a prerequisite for certain contribution and moderation actions tied to that geography. Roughly 325 land-only quadrants have been minted, plus a dedicated South Pole and North Pole NFTs (with custom Leaflet rendering — Web Mercator latitude clamped to ±85.05° with a polar cap overlay).
 
 ### 2. Event Submission & Verification
 
