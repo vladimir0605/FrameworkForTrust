@@ -1,6 +1,5 @@
 .env
 backend/.env
 frontend/.env
-src/.env
 .env.local
 .env.production.local
