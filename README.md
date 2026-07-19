@@ -96,6 +96,7 @@ The result is a **self-correcting, permissionless layer of ground truth** — no
 | GeoQuadrants (NFT) | `0x1421C0dd6D962fb5c5A29340C74bEE66AdA60BFb` | Geographic NFT grid |
 | FfTRegistry | `0x58baE811a67E312BBB7B7fF1A438a2A0137155cd` | Contract address registry |
 | FfTStaking | `0x49568b041FD6F77dAD1611978043Ba2b18D84b92` | Staking and slash |
+| GeoquadrantAnchor | `0xd9145CCE52D386f254917e481eB44e9943F39138` | Staking and slash |
 
 ---
 
