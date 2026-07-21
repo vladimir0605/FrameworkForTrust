@@ -136,8 +136,8 @@ MetaMask browser extension
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/vladimir0605/framework-for-trust.git
-cd framework-for-trust
+git clone https://github.com/vladimir0605/FrameworkForTrust.git
+cd FrameworkForTrust
 ```
 
 **Frontend:**
